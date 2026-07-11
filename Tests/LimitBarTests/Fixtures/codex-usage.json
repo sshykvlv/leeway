@@ -1,7 +1,7 @@
 {
-  "user_id": "user-nvufM93x4PhxilX1g0ywp7eC",
-  "account_id": "user-nvufM93x4PhxilX1g0ywp7eC",
-  "email": "hi@norm.place",
+  "user_id": "user-REDACTED",
+  "account_id": "acct-REDACTED",
+  "email": "user@example.com",
   "plan_type": "plus",
   "rate_limit": {
     "allowed": true,
