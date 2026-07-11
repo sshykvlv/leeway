@@ -21,6 +21,9 @@ struct Account: Codable, Equatable, Identifiable {
     let kind: AccountKind
     var email: String?
     var plan: String? = nil
+    /// Для дополнительных Codex-аккаунтов — путь к их CODEX_HOME (папке с auth.json).
+    /// nil = основной автоподхваченный Codex (использует ~/.codex по умолчанию).
+    var codexHome: String? = nil
 }
 
 enum AccountState: Equatable {

@@ -12,6 +12,14 @@ struct CodexAuth: Equatable {
         return home.appendingPathComponent("auth.json")
     }
 
+    /// Загрузка из конкретного CODEX_HOME (папки с auth.json) — для доп. Codex-аккаунтов.
+    static func load(homePath: String) -> CodexAuth? {
+        load(from: URL(fileURLWithPath: homePath, isDirectory: true).appendingPathComponent("auth.json"))
+    }
+
+    /// Путь к CODEX_HOME по умолчанию (родитель defaultURL) — для дедупа при добавлении.
+    static var defaultHomePath: String { defaultURL.deletingLastPathComponent().path }
+
     // Read-only: never write auth.json back — it belongs to the codex CLI.
     static func load(from url: URL = defaultURL) -> CodexAuth? {
         guard let data = try? Data(contentsOf: url),

@@ -12,7 +12,7 @@ final class Poller {
     private var timer: Timer?
     var onUpdate: (([UUID: AccountState]) -> Void)?
 
-    private var codexAccessOverride: String?
+    private var codexAccessOverride: [UUID: String] = [:]   // refreshed token per codex account
     private var ownTokens: [UUID: OAuthTokens] = [:]
     private var identityAttempted: Set<UUID> = []
 
@@ -76,12 +76,13 @@ final class Poller {
             ownTokens[account.id] = t
             return try await ClaudeProvider().fetchUsage(accessToken: t.accessToken)
         case .codex:
-            guard let auth = CodexAuth.load() else { throw FetchError.unauthorized }
+            let loaded = account.codexHome.flatMap { CodexAuth.load(homePath: $0) } ?? CodexAuth.load()
+            guard let auth = loaded else { throw FetchError.unauthorized }
             do {
-                return try await CodexProvider().fetchUsage(accessToken: codexAccessOverride ?? auth.accessToken)
+                return try await CodexProvider().fetchUsage(accessToken: codexAccessOverride[account.id] ?? auth.accessToken)
             } catch FetchError.unauthorized {
                 let fresh = try await CodexProvider().refresh(auth)
-                codexAccessOverride = fresh
+                codexAccessOverride[account.id] = fresh
                 return try await CodexProvider().fetchUsage(accessToken: fresh)
             }
         }
@@ -105,7 +106,8 @@ final class Poller {
                 store.setEmail(id: account.id, profile.email, plan: profile.planLabel)
             }
         case .codex:
-            if let email = CodexAuth.load()?.email() {
+            let auth = account.codexHome.flatMap { CodexAuth.load(homePath: $0) } ?? CodexAuth.load()
+            if let email = auth?.email() {
                 store.setEmail(id: account.id, email)
             }
         }

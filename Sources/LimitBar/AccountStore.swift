@@ -54,7 +54,11 @@ final class AccountStore: @unchecked Sendable {
     }
     func remove(id: UUID) {
         guard let account = accounts.first(where: { $0.id == id }) else { return }
-        if account.kind == .claudeMain || account.kind == .codex {
+        // Dismissal только для автоподхваченных builtin-ов (основной Claude и Codex без своего
+        // codexHome). Добавленный вручную Codex (со своим CODEX_HOME) просто удаляется —
+        // иначе его удаление ошибочно скрыло бы и основной Codex.
+        let isBuiltinCodex = account.kind == .codex && account.codexHome == nil
+        if account.kind == .claudeMain || isBuiltinCodex {
             dismissedBuiltins.insert(account.kind.rawValue)
             defaults.set(Array(dismissedBuiltins), forKey: dismissedKey)
         }

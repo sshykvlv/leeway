@@ -48,6 +48,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         updatedItem.isEnabled = false
         menu.addItem(updatedItem)
         addAction("Add Claude Account…", #selector(addAccount))
+        addAction("Add Codex Account…", #selector(addCodexAccount))
         menu.addItem(.separator())
         let login = addAction("Launch at Login", #selector(toggleLogin))
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
@@ -115,6 +116,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     // MARK: actions
     @objc private func addAccount() { OAuthFlow.shared.start(store: store) { [weak self] in self?.render() } }
+    @objc private func addCodexAccount() {
+        // Codex-логин делает codex CLI (пишет auth.json в свой CODEX_HOME). Второй аккаунт =
+        // отдельный CODEX_HOME. Даём выбрать его папку; read-only читаем оттуда auth.json.
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        panel.showsHiddenFiles = true
+        panel.message = "Choose a Codex home folder containing auth.json (e.g. ~/.codex, or a second CODEX_HOME you logged into with `codex login`)."
+        panel.prompt = "Add"
+        NSApp.activate(ignoringOtherApps: true)
+        guard panel.runModal() == .OK, let dir = panel.url else { return }
+        let home = dir.path
+        guard let auth = CodexAuth.load(homePath: home) else {
+            let a = NSAlert()
+            a.messageText = "No Codex login found there"
+            a.informativeText = "That folder has no valid auth.json. Run `codex login` (optionally with CODEX_HOME set to this folder) first, then try again."
+            a.runModal()
+            return
+        }
+        // Дедуп: не добавлять тот же home, что уже есть (в т.ч. основной ~/.codex).
+        let existingHomes = store.accounts.filter { $0.kind == .codex }
+            .map { $0.codexHome ?? CodexAuth.defaultHomePath }
+        if existingHomes.contains(home) { NSSound.beep(); return }
+        let email = auth.email()
+        store.add(Account(id: UUID(), name: email ?? "Codex", kind: .codex,
+                          email: email, codexHome: home))
+        render()
+    }
     @objc private func toggleLogin() {
         let svc = SMAppService.mainApp
         do { svc.status == .enabled ? try svc.unregister() : try svc.register() }

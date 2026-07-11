@@ -81,4 +81,19 @@ final class AccountStoreTests: XCTestCase {
         let store2 = AccountStore(defaults: defaults, hasClaudeMain: { true }, hasCodex: { false })
         XCTAssertFalse(store2.accounts.contains { $0.kind == .claudeMain })
     }
+
+    // Removing a manually-added Codex account (one with its own codexHome) must NOT
+    // dismiss the auto-detected builtin Codex — only the builtin (codexHome == nil) does.
+    func testRemovingAddedCodexDoesNotDismissBuiltin() throws {
+        let defaults = ephemeralDefaults()
+        let store = AccountStore(defaults: defaults, hasClaudeMain: { false }, hasCodex: { true })
+        let addedID = UUID()
+        store.add(Account(id: addedID, name: "Work", kind: .codex, email: nil,
+                          codexHome: "/tmp/second-codex-home"))
+        store.remove(id: addedID)
+        XCTAssertFalse(store.dismissedBuiltins.contains(AccountKind.codex.rawValue))
+        // Builtin codex is still present after a restart.
+        let store2 = AccountStore(defaults: defaults, hasClaudeMain: { false }, hasCodex: { true })
+        XCTAssertTrue(store2.accounts.contains { $0.kind == .codex && $0.codexHome == nil })
+    }
 }
