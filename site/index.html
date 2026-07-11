@@ -126,7 +126,7 @@
     </div>
   </section>
 
-  <!-- SHOWCASE: macOS menu bar + dropdown with account rows -->
+  <!-- SHOWCASE: реальный вид — полоса менюбара с фейдом по краям + плавающее меню (паттерн Lidless) -->
   <section class="showcase">
     <div class="screen">
       <div class="menubar">
@@ -140,24 +140,24 @@
             <span class="acct-name">Main</span>
             <span class="acct-svc">Claude Code · Max 20x</span>
           </div>
-          <span class="gauge"><span class="ring" style="--v:62"><span>62</span></span><span class="g-col"><span class="g-win">5h</span><span class="g-reset">↻ 19:00</span></span></span>
-          <span class="gauge"><span class="ring" style="--v:41"><span>41</span></span><span class="g-col"><span class="g-win">7d</span><span class="g-reset">↻ Tue 09:00</span></span></span>
+          <span class="gauge"><span class="ring" style="--v:62"><span>62</span></span><span class="cap"><b>5h</b> · 19:04</span></span>
+          <span class="gauge"><span class="ring" style="--v:41"><span>41</span></span><span class="cap"><b>7d</b> · Tue 09:00</span></span>
         </div>
         <div class="acct">
           <div class="acct-id">
             <span class="acct-name">Max 2</span>
             <span class="acct-svc">Claude Code · Max 20x</span>
           </div>
-          <span class="gauge"><span class="ring warn" style="--v:84"><span>84</span></span><span class="g-col"><span class="g-win">5h</span><span class="g-reset">↻ 17:30</span></span></span>
-          <span class="gauge"><span class="ring" style="--v:53"><span>53</span></span><span class="g-col"><span class="g-win">7d</span><span class="g-reset">↻ Wed 12:00</span></span></span>
+          <span class="gauge"><span class="ring warn" style="--v:84"><span>84</span></span><span class="cap warn"><b>5h</b> → 17:30</span></span>
+          <span class="gauge"><span class="ring" style="--v:53"><span>53</span></span><span class="cap"><b>7d</b> · Wed 12:00</span></span>
         </div>
         <div class="acct">
           <div class="acct-id">
             <span class="acct-name">Codex</span>
             <span class="acct-svc">Codex · Plus</span>
           </div>
-          <span class="gauge"><span class="ring hot" style="--v:100"><span>100</span></span><span class="g-col"><span class="g-win">5h</span><span class="g-reset hot">↻ 15:12</span></span></span>
-          <span class="gauge"><span class="ring warn" style="--v:71"><span>71</span></span><span class="g-col"><span class="g-win">7d</span><span class="g-reset">↻ Fri 08:00</span></span></span>
+          <span class="gauge"><span class="ring hot" style="--v:100"><span>100</span></span><span class="cap hot"><b>5h</b> · 15:12</span></span>
+          <span class="gauge"><span class="ring warn" style="--v:71"><span>71</span></span><span class="cap"><b>7d</b> · Fri 08:00</span></span>
         </div>
         <div class="mi-sep"></div>
         <div class="mi"><span class="mi-label">Add Claude Account…</span></div>
@@ -166,7 +166,7 @@
         <div class="mi"><span class="mi-label">Quit Leeway</span><span class="mi-kbd">⌘Q</span></div>
       </div>
     </div>
-    <p class="showcase-cap">Rows are accounts; rings are the 5-hour and weekly windows, each with its exact reset time. Green is headroom, yellow is “wrap it up”, and when a window runs dry the clock turns red — <em>↻ 15:12</em> beats a surprise lockout.</p>
+    <p class="showcase-cap">Rows are accounts; rings are the 5-hour and weekly windows, each with its exact reset time. Green is headroom, yellow is “wrap it up”, orange <em class="fc">→ 17:30</em> forecasts when you’ll hit the wall at this pace, and when a window runs dry the clock turns red — <em>15:12</em> beats a surprise lockout.</p>
   </section>
 
   <!-- HIGHLIGHTS -->
