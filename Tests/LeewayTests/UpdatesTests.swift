@@ -1,5 +1,5 @@
 import XCTest
-@testable import LimitBar
+@testable import Leeway
 
 final class UpdatesTests: XCTestCase {
     func testVersionCompare() {

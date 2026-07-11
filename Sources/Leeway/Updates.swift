@@ -5,21 +5,21 @@ import CryptoKit
 // using the SAFE "verify-then-reveal" model: never auto-swaps the running app bundle and never
 // relaunches. It downloads the release zip, optionally verifies its SHA-256 against a published
 // SHA256SUMS asset, unzips it, then — as a mandatory, non-optional barrier — verifies the unzipped
-// .app has a valid code signature AND was signed by LimitBar's own Developer ID Team ID. Only then
+// .app has a valid code signature AND was signed by Leeway's own Developer ID Team ID. Only then
 // does it reveal the verified .app in Finder for the user to drag into /Applications themselves.
 // Dependency-free: URLSession for network, FileManager + /usr/bin/ditto for unzip, Process for
 // codesign, CryptoKit for hashing.
 enum Updates {
-    private static let repo = "https://github.com/sshykvlv/limitbar"
+    private static let repo = "https://github.com/sshykvlv/leeway"
     private static let expectedTeamID = "J2Q78NFXZX"
-    private static let expectedAssetName = "LimitBar.zip"
+    private static let expectedAssetName = "Leeway.zip"
 
     private static var currentVersion: String {
         (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "0.0.0"
     }
 
     static func check(announce: Bool) {
-        guard let api = URL(string: "https://api.github.com/repos/sshykvlv/limitbar/releases/latest") else { return }
+        guard let api = URL(string: "https://api.github.com/repos/sshykvlv/leeway/releases/latest") else { return }
         var req = URLRequest(url: api)
         req.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         URLSession.shared.dataTask(with: req) { data, _, error in
@@ -32,7 +32,7 @@ enum Updates {
             let latest = tag.hasPrefix("v") ? String(tag.dropFirst()) : tag
             guard isNewer(latest, than: currentVersion) else {
                 if announce {
-                    DispatchQueue.main.async { alert("You’re up to date", "LimitBar v\(currentVersion) is the latest version.") }
+                    DispatchQueue.main.async { alert("You’re up to date", "Leeway v\(currentVersion) is the latest version.") }
                 }
                 return
             }
@@ -54,7 +54,7 @@ enum Updates {
     }
 
     // Componentwise numeric comparison — matches Lidless's isNewer(_:than:). Internal (not private)
-    // so it's unit-testable via @testable import LimitBar.
+    // so it's unit-testable via @testable import Leeway.
     static func isNewer(_ a: String, than b: String) -> Bool {
         func parts(_ s: String) -> [Int] { s.split(separator: ".").map { Int($0) ?? 0 } }
         let x = parts(a), y = parts(b)
@@ -67,8 +67,8 @@ enum Updates {
 
     private static func downloadAndVerify(_ zip: URL, sums: URL?, version: String, announce: Bool) {
         let downloads = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Downloads")
-        let zipPath = downloads.appendingPathComponent("LimitBar-v\(safeVersion(version)).zip")
-        let appPath = downloads.appendingPathComponent("LimitBar.app")
+        let zipPath = downloads.appendingPathComponent("Leeway-v\(safeVersion(version)).zip")
+        let appPath = downloads.appendingPathComponent("Leeway.app")
 
         URLSession.shared.downloadTask(with: zip) { tmp, _, error in
             func fail(_ title: String, _ message: String) {
@@ -121,7 +121,7 @@ enum Updates {
                 try? FileManager.default.removeItem(at: appPath)
                 try? FileManager.default.removeItem(at: zipPath)
                 fail("Update rejected",
-                     "The downloaded app isn’t signed by LimitBar’s Developer ID, so it was removed. Download manually from the releases page.")
+                     "The downloaded app isn’t signed by Leeway’s Developer ID, so it was removed. Download manually from the releases page.")
                 return
             }
 
@@ -130,7 +130,7 @@ enum Updates {
             DispatchQueue.main.async {
                 NSWorkspace.shared.activateFileViewerSelecting([appPath])
                 if announce {
-                    alert("Update verified", "Drag LimitBar.app to /Applications to install.")
+                    alert("Update verified", "Drag Leeway.app to /Applications to install.")
                 }
             }
         }.resume()

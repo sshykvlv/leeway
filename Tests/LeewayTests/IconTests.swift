@@ -1,5 +1,5 @@
 import XCTest
-@testable import LimitBar
+@testable import Leeway
 
 final class IconTests: XCTestCase {
     func testBarLevelsUsedFromWorstWindow() {

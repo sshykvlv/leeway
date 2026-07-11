@@ -1,17 +1,17 @@
-# LimitBar
+# Leeway
 
 A menu bar app that shows how much usage you have left on multiple Claude accounts and Codex, at a glance.
 
-![LimitBar menu](docs/screenshot.png)
+![Leeway menu](docs/screenshot.png)
 <!-- TODO: add a real screenshot -->
 
 ## Install
 
 ```
-brew install --cask sshykvlv/tap/limitbar
+brew install --cask sshykvlv/tap/leeway
 ```
 
-Or download `LimitBar.zip` from [Releases](https://github.com/sshykvlv/limitbar/releases) and unzip it to `/Applications`.
+Or download `Leeway.zip` from [Releases](https://github.com/sshykvlv/leeway/releases) and unzip it to `/Applications`.
 
 ## Usage
 

@@ -29,7 +29,9 @@ struct AccountRowView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
-            VStack(alignment: .leading, spacing: 1) {
+            // Отрицательный зазор — фидбэк владельца 11.07: строка сервиса
+            // должна сидеть вплотную к имени аккаунта.
+            VStack(alignment: .leading, spacing: -2) {
                 HStack(spacing: 4) {
                     Text(name)
                         .font(.system(size: 13, weight: .medium))
@@ -127,16 +129,18 @@ enum ResetClock {
 }
 
 /// Кольцо-гейдж (процент внутри, дуга с круглыми капами — заполнение заканчивается
-/// закруглением, не рубленым краем) + сбоку колонка: окно («5h»/«7d») и абсолютное
-/// время сброса. `window == nil` — нет данных: пустой трек, «—» внутри.
-/// При исчерпании (>99%) время сброса становится главным ответом — красным и жирнее.
+/// закруглением, не рубленым краем) + подпись ОДНОЙ строкой: «5h · 19:04»
+/// (вариант C, выбор владельца 11.07 — компактно и тихо). В слоте времени
+/// приоритет: исчерпано (>99%) → красное время сброса; есть burn-rate прогноз →
+/// оранжевое «→ 15:40»; иначе обычное время сброса. Полная детализация — в тултипе.
+/// `window == nil` — нет данных: пустой трек, «—» внутри.
 private struct RingGauge: View {
     let label: String
     let window: UsageWindow?
     var hovered: Bool = false
 
-    private static let diameter: CGFloat = 22
-    private static let lineWidth: CGFloat = 3
+    private static let diameter: CGFloat = 16
+    private static let lineWidth: CGFloat = 2
 
     private var fraction: Double {
         guard let window else { return 0 }
@@ -156,23 +160,27 @@ private struct RingGauge: View {
     private var labelColor: Color { hovered ? .white.opacity(0.75) : Color(nsColor: .tertiaryLabelColor) }
     private var numberColor: Color { hovered ? .white : .primary }
     private var trackColor: Color { hovered ? .white.opacity(0.3) : Color(nsColor: .quaternaryLabelColor) }
-    private var resetColor: Color {
-        if hovered { return .white.opacity(exhausted ? 1 : 0.75) }
-        return exhausted ? Color(nsColor: .systemRed) : Color(nsColor: .secondaryLabelColor)
-    }
 
-    // Прогноз исчерпания заменяет собой обычную подпись окна ("5h" → "5h → 15:40"),
-    // чтобы не отъедать дополнительную строку в и без того компактном ряду.
-    private var forecastText: String? {
-        guard let projected = window?.projectedExhaustion, let time = ResetClock.label(projected) else { return nil }
-        return "\(label) → \(time)"
+    // Слот времени один (одна строка подписи): прогноз исчерпания вытесняет
+    // обычное время сброса («→ 15:40», оранжевый — умрёт раньше, чем сбросится),
+    // а исчерпание вытесняет всё (красное время возврата). Детали — в тултипе.
+    private var timeText: String {
+        guard let window else { return "" }
+        if !exhausted, let projected = window.projectedExhaustion,
+           let time = ResetClock.label(projected) {
+            return "→ \(time)"
+        }
+        return ResetClock.label(window.resetsAt) ?? ""
     }
-    private var forecastColor: Color {
-        hovered ? .white.opacity(0.9) : Color(nsColor: .systemOrange)
+    private var timeColor: Color {
+        if hovered { return .white.opacity(exhausted ? 1 : 0.85) }
+        if exhausted { return Color(nsColor: .systemRed) }
+        if window?.projectedExhaustion != nil { return Color(nsColor: .systemOrange) }
+        return Color(nsColor: .secondaryLabelColor)
     }
 
     var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: 6) {
             ZStack {
                 Circle()
                     .stroke(trackColor, lineWidth: Self.lineWidth)
@@ -183,39 +191,30 @@ private struct RingGauge: View {
                         .rotationEffect(.degrees(-90))
                 }
                 Text(window.map { "\(Int($0.utilization))" } ?? "—")
-                    .font(.system(size: 9, weight: .medium))
+                    .font(.system(size: 7.5, weight: .medium))
                     .monospacedDigit()
                     .foregroundStyle(numberColor)
             }
             .frame(width: Self.diameter, height: Self.diameter)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(forecastText ?? label)
-                    .font(.system(size: 8, weight: .medium))
-                    .foregroundStyle(forecastText != nil ? forecastColor : labelColor)
-                    .lineLimit(1)
-                Text(resetText)
-                    .font(.system(size: 9, weight: exhausted ? .semibold : .regular))
-                    .monospacedDigit()
-                    .foregroundStyle(resetColor)
-                    .lineLimit(1)
-            }
-            .frame(width: 60, alignment: .leading)
+            (Text(label)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundColor(labelColor)
+             + Text(window == nil ? "" : " · \(timeText)")
+                .font(.system(size: 9.5, weight: exhausted ? .semibold : .regular))
+                .foregroundColor(timeColor))
+                .monospacedDigit()
+                .lineLimit(1)
+                .frame(width: 76, alignment: .leading)
         }
-    }
-
-    private var resetText: String {
-        guard let window else { return "" }
-        guard let label = ResetClock.label(window.resetsAt) else { return "" }
-        return "↻ \(label)"
     }
 }
 
 enum MenuRowFactory {
     static let rowWidth: CGFloat = 368
-    // Height budget: кольцо 22pt (подпись сбоку, не снизу) vs текст-колонка ~24pt;
-    // ~4pt воздуха сверху/снизу → 32pt. Компактнее и колец-с-подписью-снизу (38pt),
-    // и горизонтальных баров (36pt).
-    static let rowHeight: CGFloat = 32
+    // Height budget: кольцо 16pt и одна строка подписи; лимитирует текст-колонка
+    // имени (13pt + 10pt, зазор −2) ≈ 22pt; по ~2pt воздуха → 26pt (вариант C,
+    // выбор владельца 11.07 из четырёх степеней компактности).
+    static let rowHeight: CGFloat = 26
 
     static func item(for account: Account, state: AccountState) -> NSMenuItem {
         let item = NSMenuItem()

@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "LimitBar",
+    name: "Leeway",
     platforms: [.macOS(.v14)],
     targets: [
-        .executableTarget(name: "LimitBar", path: "Sources/LimitBar"),
-        .testTarget(name: "LimitBarTests", dependencies: ["LimitBar"],
-                    path: "Tests/LimitBarTests",
+        .executableTarget(name: "Leeway", path: "Sources/Leeway"),
+        .testTarget(name: "LeewayTests", dependencies: ["Leeway"],
+                    path: "Tests/LeewayTests",
                     resources: [.copy("Fixtures")]),
     ]
 )

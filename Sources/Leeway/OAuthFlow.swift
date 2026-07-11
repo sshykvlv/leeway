@@ -73,7 +73,7 @@ final class OAuthFlow {
                       let line = text.split(separator: "\r\n").first,
                       let parsed = Self.parseCallback(requestLine: String(line))
                 else { conn.cancel(); return }
-                let html = "<html><body style='font-family:-apple-system;text-align:center;padding-top:20vh'>LimitBar connected. You can close this tab.</body></html>"
+                let html = "<html><body style='font-family:-apple-system;text-align:center;padding-top:20vh'>Leeway connected. You can close this tab.</body></html>"
                 let resp = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: \(html.utf8.count)\r\nConnection: close\r\n\r\n\(html)"
                 conn.send(content: Data(resp.utf8), completion: .contentProcessed { _ in conn.cancel() })
                 Task { @MainActor [weak self] in

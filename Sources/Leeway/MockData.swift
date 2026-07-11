@@ -1,12 +1,12 @@
 import Foundation
 
-/// Демо-режим для обкатки вёрстки без живых аккаунтов: `LIMITBAR_MOCK=1
-/// build/LimitBar.app/Contents/MacOS/LimitBar` показывает фиксированный набор
+/// Демо-режим для обкатки вёрстки без живых аккаунтов: `LEEWAY_MOCK=1
+/// build/Leeway.app/Contents/MacOS/Leeway` показывает фиксированный набор
 /// состояний — здоровое, «жёлтая зона» и полностью исчерпанное 5h-окно.
 /// Ничего не пишет в UserDefaults/Keychain и не ходит в сеть.
 enum MockData {
     static var enabled: Bool {
-        ProcessInfo.processInfo.environment["LIMITBAR_MOCK"] != nil
+        ProcessInfo.processInfo.environment["LEEWAY_MOCK"] != nil
     }
 
     static let accounts: [Account] = [

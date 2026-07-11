@@ -1,5 +1,5 @@
 import XCTest
-@testable import LimitBar
+@testable import Leeway
 
 final class ProviderTests: XCTestCase {
     func testOwnTokensRoundtrip() throws {
@@ -15,10 +15,10 @@ final class ProviderTests: XCTestCase {
 
     // Opt-in: чтение чужой записи "Claude Code-credentials" вызывает блокирующий
     // диалог Keychain у любого, кто запускает тесты. Гоняем только когда явно просят:
-    // LIMITBAR_TEST_KEYCHAIN=1 swift test
+    // LEEWAY_TEST_KEYCHAIN=1 swift test
     func testClaudeCodeTokensReadableOnOwnerMachine() throws {
-        try XCTSkipUnless(ProcessInfo.processInfo.environment["LIMITBAR_TEST_KEYCHAIN"] == "1",
-                          "set LIMITBAR_TEST_KEYCHAIN=1 to exercise real Keychain read")
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["LEEWAY_TEST_KEYCHAIN"] == "1",
+                          "set LEEWAY_TEST_KEYCHAIN=1 to exercise real Keychain read")
         // На машине владельца запись существует; смок-проверка парсинга без вывода значений.
         if let t = KeychainStore.claudeCodeTokens() {
             XCTAssertGreaterThan(t.accessToken.count, 20)

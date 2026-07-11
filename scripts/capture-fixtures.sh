@@ -3,7 +3,7 @@
 # Токены не печатает.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-FIX=Tests/LimitBarTests/Fixtures; mkdir -p "$FIX"
+FIX=Tests/LeewayTests/Fixtures; mkdir -p "$FIX"
 
 CLAUDE_TOKEN=$(security find-generic-password -s "Claude Code-credentials" -w \
   | python3 -c "import json,sys; print(json.load(sys.stdin)['claudeAiOauth']['accessToken'])")
@@ -22,8 +22,8 @@ python3 - <<'EOF'
 import json
 # Редактируем PII владельца (репо публичный, парсеры эти поля не читают).
 REDACT = {"user_id": "user-REDACTED", "account_id": "acct-REDACTED", "email": "user@example.com"}
-for f in ("Tests/LimitBarTests/Fixtures/claude-usage.json",
-          "Tests/LimitBarTests/Fixtures/codex-usage.json"):
+for f in ("Tests/LeewayTests/Fixtures/claude-usage.json",
+          "Tests/LeewayTests/Fixtures/codex-usage.json"):
     d = json.load(open(f))
     for k, v in REDACT.items():
         if k in d:

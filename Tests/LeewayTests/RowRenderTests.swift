@@ -1,18 +1,19 @@
 import XCTest
 import SwiftUI
-@testable import LimitBar
+@testable import Leeway
 
 /// Не проверка, а инструмент: рендерит AccountRowView во всех состояниях в PNG,
 /// чтобы смотреть вёрстку строки без запуска приложения и открытия меню.
-/// Запуск: `LIMITBAR_RENDER_DIR=/tmp/rows swift test --filter RowRenderTests`
+/// Запуск: `LEEWAY_RENDER_DIR=/tmp/rows swift test --filter RowRenderTests`
 /// Без переменной окружения — скип (в обычном прогоне ничего не пишет).
 final class RowRenderTests: XCTestCase {
     @MainActor
     func testRenderRowStates() throws {
-        guard let dir = ProcessInfo.processInfo.environment["LIMITBAR_RENDER_DIR"] else {
-            throw XCTSkip("set LIMITBAR_RENDER_DIR to render row previews")
+        guard let dir = ProcessInfo.processInfo.environment["LEEWAY_RENDER_DIR"] else {
+            throw XCTSkip("set LEEWAY_RENDER_DIR to render row previews")
         }
         try FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        NSApplication.shared.appearance = NSAppearance(named: .darkAqua)   // рендер в тёмной теме
         let now = Date()
         let exhausted = Usage(
             fiveHour: UsageWindow(utilization: 100, resetsAt: now.addingTimeInterval(82 * 60)),
@@ -38,7 +39,8 @@ final class RowRenderTests: XCTestCase {
         ]
         for (name, row) in rows {
             let renderer = ImageRenderer(content: row.frame(width: MenuRowFactory.rowWidth,
-                                                            height: MenuRowFactory.rowHeight))
+                                                            height: MenuRowFactory.rowHeight)
+                                             .environment(\.colorScheme, .dark))
             renderer.scale = 2
             guard let img = renderer.nsImage, let tiff = img.tiffRepresentation,
                   let rep = NSBitmapImageRep(data: tiff),

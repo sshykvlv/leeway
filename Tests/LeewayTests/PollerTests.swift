@@ -1,5 +1,5 @@
 import XCTest
-@testable import LimitBar
+@testable import Leeway
 
 final class PollerTests: XCTestCase {
     func testBackoffScheduleShape() {
@@ -16,7 +16,7 @@ final class PollerTests: XCTestCase {
 
 final class AccountStoreTests: XCTestCase {
     private func ephemeralDefaults() -> UserDefaults {
-        let d = UserDefaults(suiteName: "limitbar.test.\(UUID().uuidString)")!
+        let d = UserDefaults(suiteName: "leeway.test.\(UUID().uuidString)")!
         return d
     }
 
