@@ -85,12 +85,11 @@ enum Notifier {
         for event in events {
             let content = UNMutableNotificationContent()
             switch event.kind {
-            case .threshold(let pct):
+            case .threshold:
                 content.title = "\(event.accountName): \(event.windowLabel) window \(event.utilization)% used"
                 if let text = ResetClock.label(event.resetsAt) {
                     content.body = "Resets \(text)"
                 }
-                _ = pct
             case .reset:
                 content.title = "\(event.accountName): \(event.windowLabel) window reset"
                 content.body = "Usage back to \(event.utilization)%"
