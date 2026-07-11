@@ -14,6 +14,7 @@ final class Poller {
 
     private var codexAccessOverride: String?
     private var ownTokens: [UUID: OAuthTokens] = [:]
+    private var identityAttempted: Set<UUID> = []
 
     init(store: AccountStore) { self.store = store }
 
@@ -46,6 +47,7 @@ final class Poller {
             let usage = try await fetchUsage(for: account)
             backoffLevel[account.id] = nil
             states[account.id] = .ok(usage, fetchedAt: Date())
+            await fetchIdentityIfNeeded(account)
         } catch FetchError.rateLimited {
             let lvl = min((backoffLevel[account.id] ?? -1) + 1, Self.backoffSchedule.count - 1)
             backoffLevel[account.id] = lvl
@@ -81,6 +83,30 @@ final class Poller {
                 let fresh = try await CodexProvider().refresh(auth)
                 codexAccessOverride = fresh
                 return try await CodexProvider().fetchUsage(accessToken: fresh)
+            }
+        }
+    }
+
+    /// Fetches an account's identity (email + plan) once and caches it via the store.
+    /// Never on every poll — a successful or failed attempt is remembered for the
+    /// lifetime of this Poller so we don't spam the profile endpoint or Keychain.
+    private func fetchIdentityIfNeeded(_ account: Account) async {
+        guard account.email == nil, !identityAttempted.contains(account.id) else { return }
+        identityAttempted.insert(account.id)
+        switch account.kind {
+        case .claudeMain:
+            guard let t = KeychainStore.claudeCodeTokens() else { return }
+            if let profile = try? await ClaudeProvider().fetchProfile(accessToken: t.accessToken) {
+                store.setEmail(id: account.id, profile.email, plan: profile.planLabel)
+            }
+        case .claudeOAuth:
+            guard let t = ownTokens[account.id] ?? KeychainStore.loadOwn(accountID: account.id) else { return }
+            if let profile = try? await ClaudeProvider().fetchProfile(accessToken: t.accessToken) {
+                store.setEmail(id: account.id, profile.email, plan: profile.planLabel)
+            }
+        case .codex:
+            if let email = CodexAuth.load()?.email() {
+                store.setEmail(id: account.id, email)
             }
         }
     }

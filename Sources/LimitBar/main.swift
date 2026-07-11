@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var poller: Poller!
     private let menu = NSMenu()
     private let updatedItem = NSMenuItem(title: "Updated —", action: nil, keyEquivalent: "")
+    private var appearanceObservation: NSKeyValueObservation?
 
     func applicationDidFinishLaunching(_ note: Notification) {
         // Ставим иконку ПЕРВЫМ делом, чтобы она появилась сразу. AccountStore()
@@ -26,6 +27,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         renderIcon()
         poller.start()
         Updates.check(announce: false)
+
+        // Colored (non-template) icons don't auto-retint on light/dark switch like
+        // template images do — re-render whenever the effective appearance changes.
+        appearanceObservation = NSApp.observe(\.effectiveAppearance) { [weak self] _, _ in
+            Task { @MainActor in self?.renderIcon() }
+        }
     }
 
     func menuWillOpen(_ menu: NSMenu) { poller.pollNow() }
@@ -68,11 +75,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let relogin = NSMenuItem(title: "Re-login…", action: #selector(reloginAccount(_:)), keyEquivalent: "")
             relogin.target = self; relogin.representedObject = account.id
             sub.addItem(relogin)
-            sub.addItem(.separator())
-            let remove = NSMenuItem(title: "Remove", action: #selector(removeAccount(_:)), keyEquivalent: "")
-            remove.target = self; remove.representedObject = account.id
-            sub.addItem(remove)
         }
+        sub.addItem(.separator())
+        let remove = NSMenuItem(title: "Remove", action: #selector(removeAccount(_:)), keyEquivalent: "")
+        remove.target = self; remove.representedObject = account.id
+        sub.addItem(remove)
         return sub
     }
 
@@ -85,12 +92,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func renderIcon() {
         let states = store.accounts.map { poller.state(for: $0.id) }
-        // NOTE: IconRenderer draws hot (non-template) bars in solid black/red,
-        // which is invisible against a dark menu bar. Calm icons stay template
-        // (auto-tinted by the system) and cover the common case; the hot-mode
-        // dark-appearance contrast issue is a known v1 limitation — tracked for
-        // a follow-up rather than fixed here (see Task 9 self-review).
         statusItem.button?.image = IconRenderer.image(levels: IconRenderer.barLevels(states))
+        statusItem.button?.toolTip = tooltip()
+    }
+
+    /// Names an owner never customized, used as a fallback signal that a row's
+    /// email (once fetched) is more informative than its generic default name.
+    private static let defaultAccountNames: Set<String> = ["Claude", "Codex", "Claude 2"]
+
+    private func tooltip() -> String {
+        let parts = store.accounts.compactMap { account -> String? in
+            let pct: Int
+            switch poller.state(for: account.id) {
+            case .ok(let usage, _), .stale(let usage, _, _): pct = Int(usage.worstUtilization)
+            case .failed, .pending: return nil   // skip accounts with no data
+            }
+            let label = (Self.defaultAccountNames.contains(account.name) ? account.email : nil) ?? account.name
+            return "\(label) \(pct)%"
+        }
+        return parts.joined(separator: " · ")
     }
 
     // MARK: actions

@@ -3,6 +3,7 @@ import Foundation
 struct CodexAuth: Equatable {
     let accessToken: String
     let refreshToken: String
+    let idToken: String?
 
     static var defaultURL: URL {
         let home = ProcessInfo.processInfo.environment["CODEX_HOME"]
@@ -19,7 +20,26 @@ struct CodexAuth: Equatable {
               let access = tokens["access_token"] as? String,
               let refresh = tokens["refresh_token"] as? String
         else { return nil }
-        return CodexAuth(accessToken: access, refreshToken: refresh)
+        return CodexAuth(accessToken: access, refreshToken: refresh, idToken: tokens["id_token"] as? String)
+    }
+
+    /// Decodes the `email` claim from the id_token JWT payload. Pure/offline — no network.
+    func email() -> String? {
+        guard let idToken else { return nil }
+        let parts = idToken.split(separator: ".")
+        guard parts.count >= 2 else { return nil }
+        guard let payload = Self.base64URLDecode(String(parts[1])),
+              let json = try? JSONSerialization.jsonObject(with: payload) as? [String: Any]
+        else { return nil }
+        return json["email"] as? String
+    }
+
+    private static func base64URLDecode(_ s: String) -> Data? {
+        var str = s.replacingOccurrences(of: "-", with: "+")
+                   .replacingOccurrences(of: "_", with: "/")
+        let padding = str.count % 4
+        if padding > 0 { str += String(repeating: "=", count: 4 - padding) }
+        return Data(base64Encoded: str)
     }
 }
 

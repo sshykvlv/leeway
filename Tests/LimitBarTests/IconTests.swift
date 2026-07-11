@@ -11,16 +11,22 @@ final class IconTests: XCTestCase {
         ]
         let levels = IconRenderer.barLevels(states)
         XCTAssertEqual(levels[0].remaining!, 0.38, accuracy: 0.001) // 1 − 0.62 (worst window)
-        XCTAssertFalse(levels[0].hot)
+        XCTAssertEqual(levels[0].severity, .normal)
         XCTAssertNil(levels[1].remaining)                            // no data → empty track
         XCTAssertNil(levels[2].remaining)
     }
 
-    func testHotWhenLessThanTenPercentRemaining() {
+    func testWarnSeverityAboveSeventyPercentUsed() {
+        let s: [AccountState] = [.ok(Usage(fiveHour: .init(utilization: 75, resetsAt: nil),
+                                           sevenDay: nil), fetchedAt: .init())]
+        XCTAssertEqual(IconRenderer.barLevels(s)[0].severity, .warn)
+    }
+
+    func testDangerSeverityAboveNinetyPercentUsed() {
         let s: [AccountState] = [.ok(Usage(fiveHour: .init(utilization: 95, resetsAt: nil),
                                            sevenDay: nil), fetchedAt: .init())]
         let level = IconRenderer.barLevels(s)[0]
-        XCTAssertTrue(level.hot)
+        XCTAssertEqual(level.severity, .danger)
         XCTAssertEqual(level.remaining!, 0.05, accuracy: 0.001)
     }
 
@@ -38,8 +44,15 @@ final class IconTests: XCTestCase {
         XCTAssertTrue(img.isTemplate)
     }
 
-    func testImageNonTemplateWhenHot() {
+    func testImageNonTemplateWhenDanger() {
         let s: [AccountState] = [.ok(Usage(fiveHour: .init(utilization: 95, resetsAt: nil),
+                                           sevenDay: nil), fetchedAt: .init())]
+        let img = IconRenderer.image(levels: IconRenderer.barLevels(s))
+        XCTAssertFalse(img.isTemplate)
+    }
+
+    func testImageNonTemplateWhenWarn() {
+        let s: [AccountState] = [.ok(Usage(fiveHour: .init(utilization: 75, resetsAt: nil),
                                            sevenDay: nil), fetchedAt: .init())]
         let img = IconRenderer.image(levels: IconRenderer.barLevels(s))
         XCTAssertFalse(img.isTemplate)

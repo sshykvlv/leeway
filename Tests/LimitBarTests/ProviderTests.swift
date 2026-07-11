@@ -48,6 +48,35 @@ final class ProviderTests: XCTestCase {
         catch { XCTAssertEqual(error as? FetchError, .rateLimited) }
     }
 
+    func testClaudeProviderFetchProfileSuccess() async throws {
+        MockURLProtocol.handler = { req in
+            XCTAssertTrue(req.url!.absoluteString.hasSuffix("/api/oauth/profile"))
+            XCTAssertEqual(req.value(forHTTPHeaderField: "anthropic-beta"), "oauth-2025-04-20")
+            return (200, Data(#"{"account":{"email":"sasha@ykv.lv","full_name":"Sasha"},"organization":{"rate_limit_tier":"default_claude_max_20x"}}"#.utf8))
+        }
+        let profile = try await ClaudeProvider(session: .mocked).fetchProfile(accessToken: "tok")
+        XCTAssertEqual(profile.email, "sasha@ykv.lv")
+        XCTAssertEqual(profile.planLabel, "Max 20x")
+    }
+
+    func testClaudeProviderFetchProfile401() async {
+        MockURLProtocol.handler = { _ in (401, Data()) }
+        do { _ = try await ClaudeProvider(session: .mocked).fetchProfile(accessToken: "tok"); XCTFail() }
+        catch { XCTAssertEqual(error as? FetchError, .unauthorized) }
+    }
+
+    func testPlanLabelMapping() throws {
+        func label(_ tier: String) throws -> String? {
+            let data = Data(#"{"account":{},"organization":{"rate_limit_tier":"\#(tier)"}}"#.utf8)
+            return try ClaudeProvider.parseProfile(data).planLabel
+        }
+        XCTAssertEqual(try label("default_claude_max_20x"), "Max 20x")
+        XCTAssertEqual(try label("default_claude_max_5x"), "Max 5x")
+        XCTAssertEqual(try label("default_claude_pro"), "Pro")
+        XCTAssertEqual(try label("default_claude_team"), "Team")
+        XCTAssertNil(try label("something_else"))
+    }
+
     func testCodexAuthFileParsing() throws {
         let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("auth-test.json")
         try #"{"tokens":{"access_token":"at","refresh_token":"rt","account_id":"acc"},"last_refresh":"2026-07-01T00:00:00Z"}"#
@@ -61,6 +90,26 @@ final class ProviderTests: XCTestCase {
     func testCodexAuthMissingFileIsNil() {
         let missing = FileManager.default.temporaryDirectory.appendingPathComponent("does-not-exist-\(UUID()).json")
         XCTAssertNil(CodexAuth.load(from: missing))
+    }
+
+    func testCodexAuthEmailDecodesIDTokenJWT() throws {
+        // Payload: {"email": "sasha@ykv.lv", "sub": "123"} — base64url, no padding, dummy header/sig.
+        let idToken = "eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6ICJzYXNoYUB5a3YubHYiLCAic3ViIjogIjEyMyJ9.sig"
+        let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("auth-jwt-\(UUID()).json")
+        try #"{"tokens":{"access_token":"at","refresh_token":"rt","id_token":"\#(idToken)"}}"#
+            .write(to: tmp, atomically: true, encoding: .utf8)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let auth = try XCTUnwrap(CodexAuth.load(from: tmp))
+        XCTAssertEqual(auth.email(), "sasha@ykv.lv")
+    }
+
+    func testCodexAuthEmailNilWithoutIDToken() throws {
+        let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("auth-noidt-\(UUID()).json")
+        try #"{"tokens":{"access_token":"at","refresh_token":"rt"}}"#
+            .write(to: tmp, atomically: true, encoding: .utf8)
+        defer { try? FileManager.default.removeItem(at: tmp) }
+        let auth = try XCTUnwrap(CodexAuth.load(from: tmp))
+        XCTAssertNil(auth.email())
     }
 
     func testCodexProviderSuccess() async throws {

@@ -60,4 +60,25 @@ final class AccountStoreTests: XCTestCase {
         store.remove(id: id)
         XCTAssertTrue(store.accounts.isEmpty)
     }
+
+    func testSetEmailPersistsEmailAndPlan() {
+        let store = AccountStore(defaults: ephemeralDefaults(),
+                                 hasClaudeMain: { false }, hasCodex: { false })
+        let id = UUID()
+        store.add(Account(id: id, name: "Claude", kind: .claudeMain, email: nil))
+        store.setEmail(id: id, "sasha@ykv.lv", plan: "Max 20x")
+        XCTAssertEqual(store.accounts.first?.email, "sasha@ykv.lv")
+        XCTAssertEqual(store.accounts.first?.plan, "Max 20x")
+    }
+
+    func testRemovingBuiltinDismissesItPermanently() throws {
+        let defaults = ephemeralDefaults()
+        let store1 = AccountStore(defaults: defaults, hasClaudeMain: { true }, hasCodex: { false })
+        let id = try XCTUnwrap(store1.accounts.first(where: { $0.kind == .claudeMain })?.id)
+        store1.remove(id: id)
+        XCTAssertTrue(store1.accounts.isEmpty)
+        // Restart with the same "builtin present" signal — dismissal must stick.
+        let store2 = AccountStore(defaults: defaults, hasClaudeMain: { true }, hasCodex: { false })
+        XCTAssertFalse(store2.accounts.contains { $0.kind == .claudeMain })
+    }
 }

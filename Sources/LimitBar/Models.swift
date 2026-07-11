@@ -20,6 +20,7 @@ struct Account: Codable, Equatable, Identifiable {
     var name: String
     let kind: AccountKind
     var email: String?
+    var plan: String? = nil
 }
 
 enum AccountState: Equatable {

@@ -4,13 +4,40 @@ import AppKit
 struct AccountRowView: View {
     let name: String
     let state: AccountState
+    let kind: AccountKind
+    var email: String? = nil
+    var plan: String? = nil
+
+    private var providerIcon: String {
+        switch kind {
+        case .claudeMain, .claudeOAuth: return "sparkles"
+        case .codex: return "chevron.left.forwardslash.chevron.right"
+        }
+    }
+
+    private var secondaryLine: String? {
+        guard let email, !email.isEmpty else { return nil }
+        if let plan, !plan.isEmpty { return "\(email) · \(plan)" }
+        return email
+    }
 
     var body: some View {
         HStack(spacing: 10) {
-            Text(name)
-                .font(.system(size: 13, weight: .medium))
-                .lineLimit(1)
-                .frame(width: 92, alignment: .leading)
+            Image(systemName: providerIcon)
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(name)
+                    .font(.system(size: 13, weight: .medium))
+                    .lineLimit(1)
+                if let secondaryLine {
+                    Text(secondaryLine)
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            .frame(width: 90, alignment: .leading)
             switch state {
             case .pending:
                 Text("…").foregroundStyle(.secondary)
@@ -30,13 +57,14 @@ struct AccountRowView: View {
             }
         }
         .padding(.horizontal, 12)
-        .frame(width: 300, height: 30, alignment: .leading)
+        .frame(width: MenuRowFactory.rowWidth, height: MenuRowFactory.rowHeight, alignment: .leading)
     }
 
     @ViewBuilder
     private func windowGauge(_ label: String, _ window: UsageWindow?) -> some View {
         HStack(spacing: 5) {
             Text(label).font(.system(size: 10)).foregroundStyle(.tertiary)
+                .frame(width: 14, alignment: .leading)
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule().fill(.quaternary)
@@ -44,10 +72,10 @@ struct AccountRowView: View {
                         .frame(width: geo.size.width * min((window?.utilization ?? 0) / 100, 1))
                 }
             }
-            .frame(width: 46, height: 5)
+            .frame(width: 39, height: 5)
             Text(window.map { "\(Int($0.utilization))%" } ?? "—")
                 .font(.system(size: 11).monospacedDigit())
-                .frame(width: 34, alignment: .trailing)
+                .frame(width: 28, alignment: .trailing)
         }
         .help(resetHelp(window))
     }
@@ -66,10 +94,15 @@ struct AccountRowView: View {
 }
 
 enum MenuRowFactory {
+    static let rowWidth: CGFloat = 340
+    static let rowHeight: CGFloat = 40
+
     static func item(for account: Account, state: AccountState) -> NSMenuItem {
         let item = NSMenuItem()
-        let host = NSHostingView(rootView: AccountRowView(name: account.name, state: state))
-        host.frame = NSRect(x: 0, y: 0, width: 300, height: 30)
+        let row = AccountRowView(name: account.name, state: state, kind: account.kind,
+                                  email: account.email, plan: account.plan)
+        let host = NSHostingView(rootView: row)
+        host.frame = NSRect(x: 0, y: 0, width: rowWidth, height: rowHeight)
         item.view = host
         item.representedObject = account.id
         return item

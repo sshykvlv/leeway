@@ -1,15 +1,25 @@
 import Foundation
 
+struct ClaudeProfile: Equatable {
+    let email: String?
+    let planLabel: String?
+}
+
 struct ClaudeProvider {
     static let userAgent = "claude-code/2.0.0"   // without this UA header the endpoint puts us in an aggressive 429 bucket
     let session: URLSession
     init(session: URLSession = .shared) { self.session = session }
 
-    func fetchUsage(accessToken: String) async throws -> Usage {
-        var req = URLRequest(url: URL(string: "https://api.anthropic.com/api/oauth/usage")!)
+    private func authedRequest(_ url: String, accessToken: String) -> URLRequest {
+        var req = URLRequest(url: URL(string: url)!)
         req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         req.setValue("oauth-2025-04-20", forHTTPHeaderField: "anthropic-beta")
         req.setValue(Self.userAgent, forHTTPHeaderField: "User-Agent")
+        return req
+    }
+
+    func fetchUsage(accessToken: String) async throws -> Usage {
+        let req = authedRequest("https://api.anthropic.com/api/oauth/usage", accessToken: accessToken)
         let (data, resp): (Data, URLResponse)
         do { (data, resp) = try await session.data(for: req) }
         catch { throw FetchError.network(error.localizedDescription) }
@@ -18,6 +28,43 @@ struct ClaudeProvider {
         case 401, 403: throw FetchError.unauthorized
         case 429: throw FetchError.rateLimited
         case let s: throw FetchError.badResponse("HTTP \(s)")
+        }
+    }
+
+    func fetchProfile(accessToken: String) async throws -> ClaudeProfile {
+        let req = authedRequest("https://api.anthropic.com/api/oauth/profile", accessToken: accessToken)
+        let (data, resp): (Data, URLResponse)
+        do { (data, resp) = try await session.data(for: req) }
+        catch { throw FetchError.network(error.localizedDescription) }
+        switch (resp as! HTTPURLResponse).statusCode {
+        case 200: return try Self.parseProfile(data)
+        case 401, 403: throw FetchError.unauthorized
+        case 429: throw FetchError.rateLimited
+        case let s: throw FetchError.badResponse("HTTP \(s)")
+        }
+    }
+
+    static func parseProfile(_ data: Data) throws -> ClaudeProfile {
+        guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw FetchError.badResponse("claude profile: not a JSON object")
+        }
+        let account = root["account"] as? [String: Any]
+        let email = account?["email"] as? String
+        let org = root["organization"] as? [String: Any]
+        let tier = org?["rate_limit_tier"] as? String
+        return ClaudeProfile(email: email, planLabel: planLabel(forTier: tier))
+    }
+
+    private static func planLabel(forTier tier: String?) -> String? {
+        guard let tier else { return nil }
+        switch tier {
+        case "default_claude_max_20x": return "Max 20x"
+        case "default_claude_max_5x": return "Max 5x"
+        default:
+            let lower = tier.lowercased()
+            if lower.contains("pro") { return "Pro" }
+            if lower.contains("team") { return "Team" }
+            return nil
         }
     }
 
