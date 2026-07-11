@@ -11,6 +11,8 @@ final class Poller {
     private var nextAllowed: [UUID: Date] = [:]
     private var timer: Timer?
     var onUpdate: (([UUID: AccountState]) -> Void)?
+    let alertEngine = AlertEngine()
+    var onAlerts: (([AlertEvent]) -> Void)?
 
     private var codexAccessOverride: [UUID: String] = [:]   // refreshed token per codex account
     private var ownTokens: [UUID: OAuthTokens] = [:]
@@ -53,6 +55,10 @@ final class Poller {
             let usage = try await fetchUsage(for: account)
             backoffLevel[account.id] = nil
             states[account.id] = .ok(usage, fetchedAt: Date())
+            // Движок всегда обрабатывает опрос (чтобы состояние прогревалось даже пока
+            // алерты выключены) — гейт "включено ли" живёт в AppDelegate, не здесь.
+            let events = alertEngine.process(accountID: account.id, accountName: account.name, usage: usage)
+            if !events.isEmpty { onAlerts?(events) }
             await fetchIdentityIfNeeded(account)
         } catch FetchError.rateLimited {
             let lvl = min((backoffLevel[account.id] ?? -1) + 1, Self.backoffSchedule.count - 1)

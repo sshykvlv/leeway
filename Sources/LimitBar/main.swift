@@ -23,6 +23,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         store = AccountStore()
         poller = Poller(store: store)
         poller.onUpdate = { [weak self] _ in self?.render() }
+        poller.onAlerts = { events in
+            guard UserDefaults.standard.bool(forKey: Self.usageAlertsKey) else { return }
+            Notifier.deliver(events)
+        }
         rebuildMenu()
         renderIcon()
         poller.start()
@@ -52,6 +56,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(.separator())
         let login = addAction("Launch at Login", #selector(toggleLogin))
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
+        let alerts = addAction("Usage Alerts", #selector(toggleUsageAlerts))
+        alerts.state = UserDefaults.standard.bool(forKey: Self.usageAlertsKey) ? .on : .off
         addAction("Check for Updates…", #selector(checkUpdates))
         addAction("View on GitHub", #selector(openRepo))
         menu.addItem(.separator())
@@ -149,6 +155,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let svc = SMAppService.mainApp
         do { svc.status == .enabled ? try svc.unregister() : try svc.register() }
         catch { NSSound.beep() }
+        rebuildMenu()
+    }
+    private static let usageAlertsKey = "usageAlertsEnabled"
+    @objc private func toggleUsageAlerts() {
+        let defaults = UserDefaults.standard
+        let newValue = !defaults.bool(forKey: Self.usageAlertsKey)
+        defaults.set(newValue, forKey: Self.usageAlertsKey)
+        if newValue { Notifier.requestAuthorization() }
         rebuildMenu()
     }
     @objc private func checkUpdates() { Updates.check(announce: true) }
