@@ -28,7 +28,7 @@ struct AccountRowView: View {
     @State private var hovered = false
 
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
+        HStack(alignment: .center, spacing: 0) {
             // Отрицательный зазор — фидбэк владельца 11.07: строка сервиса
             // должна сидеть вплотную к имени аккаунта.
             VStack(alignment: .leading, spacing: -2) {
@@ -52,15 +52,16 @@ struct AccountRowView: View {
                     .foregroundStyle(hovered ? Color.white.opacity(0.85) : Color(nsColor: .secondaryLabelColor))
                     .lineLimit(1)
             }
-            .frame(width: 148, alignment: .leading)
             .help(identityHelp)
+            // Имя гибкое, гейджи прижаты к правому краю: их фиксированная ширина
+            // выравнивает кольца в столбцы между строками (вариант C).
+            Spacer(minLength: 12)
             switch state {
             case .pending:
                 gauges(usage: nil)
             case .failed(let badge):
                 Label(badge, systemImage: "exclamationmark.triangle")
                     .font(.system(size: 11)).foregroundStyle(.orange)
-                Spacer()
             case .ok(let usage, _), .stale(let usage, _, _):
                 gauges(usage: usage)
             }
@@ -85,7 +86,7 @@ struct AccountRowView: View {
     // ниже и воздушнее, чем с подписью под кольцом.
     @ViewBuilder
     private func gauges(usage: Usage?) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 10) {
             RingGauge(label: "5h", window: usage?.fiveHour, hovered: hovered)
                 .help(resetHelp(title: "5-hour window", window: usage?.fiveHour))
             RingGauge(label: "7d", window: usage?.sevenDay, hovered: hovered)
@@ -210,7 +211,7 @@ private struct RingGauge: View {
 }
 
 enum MenuRowFactory {
-    static let rowWidth: CGFloat = 368
+    static let rowWidth: CGFloat = 372
     // Height budget: кольцо 16pt и одна строка подписи; лимитирует текст-колонка
     // имени (13pt + 10pt, зазор −2) ≈ 22pt; по ~2pt воздуха → 26pt (вариант C,
     // выбор владельца 11.07 из четырёх степеней компактности).
