@@ -29,10 +29,24 @@ enum IconRenderer {
     }
 
     static func image(levels: [BarLevel]) -> NSImage {
-        // Тонкие столбцы — чтобы в строку меню помещалось больше аккаунтов.
-        let barW: CGFloat = 2.5, gap: CGFloat = 2, barH: CGFloat = 15, canvasH: CGFloat = 18
+        // Бар на аккаунт (заполнение = остаток) + цифра ХУДШЕГО остатка рядом —
+        // «сколько осталось» читается числом, бары дают текстуру по аккаунтам
+        // (фидбэк владельца 11.07: уровень на тонких барах не считывался).
+        let barW: CGFloat = 3, gap: CGFloat = 2, barH: CGFloat = 15, canvasH: CGFloat = 18
         let count = max(levels.count, 1)
-        let width = CGFloat(count) * barW + CGFloat(count - 1) * gap + 2
+        let barsW = CGFloat(count) * barW + CGFloat(count - 1) * gap + 2
+        // Худший (минимальный) остаток среди аккаунтов с данными — именно он решает,
+        // можно ли запускать тяжёлую задачу прямо сейчас.
+        let worst = levels.compactMap { lvl in lvl.remaining.map { ($0, lvl.severity) } }
+            .min { $0.0 < $1.0 }
+        let label: NSAttributedString? = worst.map { remaining, severity in
+            NSAttributedString(string: "\(Int((remaining * 100).rounded()))%", attributes: [
+                .font: NSFont.monospacedDigitSystemFont(ofSize: 10, weight: .semibold),
+                .foregroundColor: fillColor(for: severity),
+            ])
+        }
+        let labelW = label.map { ceil($0.size().width) + 3 } ?? 0
+        let width = barsW + labelW
         // Цветовое кодирование (зелёный/жёлтый/красный) — картинка всегда цветная,
         // template оставляем только когда данных нет вовсе (пустой значок).
         let hasData = levels.contains { $0.remaining != nil }
@@ -52,6 +66,10 @@ enum IconRenderer {
                     fillColor(for: level.severity).setFill()
                     fill.fill()
                 }
+            }
+            if let label {
+                let size = label.size()
+                label.draw(at: NSPoint(x: barsW + 1, y: (canvasH - size.height) / 2))
             }
             return true
         }

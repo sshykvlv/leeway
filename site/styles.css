@@ -93,7 +93,8 @@ em { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 40
   display: flex; align-items: center; gap: 12px;
   padding: 9px 12px; border-radius: 9px;
 }
-.acct:hover { background: rgba(255,255,255,0.045); }
+.acct:hover { background: #2e6be6; }
+.acct:hover .acct-name, .acct:hover .acct-svc { color: #fff; }
 .acct-id { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .acct-name { font-size: 14px; font-weight: 600; }
 .acct-svc { font-size: 11px; font-weight: 600; }
@@ -115,7 +116,8 @@ em { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 40
 .ring.hot span { color: var(--red); }
 
 .mi { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 13.5px; }
-.mi:hover { background: rgba(255,255,255,0.045); }
+.mi:hover { background: #2e6be6; color: #fff; }
+.mi:hover .mi-kbd { color: rgba(255,255,255,0.75); }
 .mi-dim { color: var(--faint); }
 .mi-kbd { margin-left: auto; color: var(--faint); font-size: 12px; }
 .mi-sep { height: 1px; background: var(--line); margin: 6px 10px; }

@@ -32,18 +32,21 @@ struct AccountRowView: View {
         return lines.joined(separator: "\n")
     }
 
+    @State private var hovered = false
+
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
             VStack(alignment: .leading, spacing: 1) {
                 Text(name)
                     .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(hovered ? Color.white : Color.primary)
                     .lineLimit(1)
                 HStack(spacing: 0) {
                     Text(serviceLabel)
-                        .foregroundStyle(serviceTint)
+                        .foregroundStyle(hovered ? Color.white : serviceTint)
                     if let plan, !plan.isEmpty {
                         Text(" · \(plan)")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(hovered ? Color.white.opacity(0.8) : Color(nsColor: .secondaryLabelColor))
                     }
                 }
                 .font(.system(size: 10, weight: .medium))
@@ -77,6 +80,16 @@ struct AccountRowView: View {
         }
         .padding(.horizontal, 12)
         .frame(width: MenuRowFactory.rowWidth, height: MenuRowFactory.rowHeight, alignment: .leading)
+        // Нативная подсветка выделения (фидбэк владельца 11.07): кастомные view-строки
+        // NSMenu сам не подсвечивает — рисуем акцентный rounded-rect с инсетом 5pt,
+        // как у системных пунктов; цвет — системный selection (следует за акцентом юзера).
+        .background(
+            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                .fill(Color(nsColor: .selectedContentBackgroundColor))
+                .opacity(hovered ? 1 : 0)
+                .padding(.horizontal, 5)
+        )
+        .onHover { hovered = $0 }
     }
 
     /// One ring gauge + detailed hover tooltip. When the window is essentially exhausted
