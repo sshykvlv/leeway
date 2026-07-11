@@ -9,6 +9,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let menu = NSMenu()
     private let updatedItem = NSMenuItem(title: "Updated —", action: nil, keyEquivalent: "")
     private var appearanceObservation: NSKeyValueObservation?
+    private var wakeObserver: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ note: Notification) {
         // Ставим иконку ПЕРВЫМ делом, чтобы она появилась сразу. AccountStore()
@@ -36,6 +37,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // template images do — re-render whenever the effective appearance changes.
         appearanceObservation = NSApp.observe(\.effectiveAppearance) { [weak self] _, _ in
             Task { @MainActor in self?.renderIcon() }
+        }
+
+        // Конкуренты после закрытой крышки показывают старые цифры, пока юзер сам не
+        // откроет меню — опрашиваем сразу по пробуждению. pollNow() уже дедупит вызовы
+        // младше 10с, так что это безопасно даже если сон был совсем коротким.
+        wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.poller.pollNow() }
         }
     }
 
