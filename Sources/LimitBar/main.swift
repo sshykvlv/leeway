@@ -4,17 +4,24 @@ import ServiceManagement
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
-    private let store = AccountStore()
+    private var store: AccountStore!
     private var poller: Poller!
     private let menu = NSMenu()
     private let updatedItem = NSMenuItem(title: "Updated —", action: nil, keyEquivalent: "")
 
     func applicationDidFinishLaunching(_ note: Notification) {
+        // Ставим иконку ПЕРВЫМ делом, чтобы она появилась сразу. AccountStore()
+        // синхронно читает Keychain-запись Claude Code — при первом запуске это
+        // вызывает диалог доступа, который заблокировал бы поток; к этому моменту
+        // иконка уже на экране, так что приложение не выглядит зависшим.
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        poller = Poller(store: store)
-        poller.onUpdate = { [weak self] _ in self?.render() }
+        statusItem.button?.image = IconRenderer.image(levels: [])
         menu.delegate = self
         statusItem.menu = menu
+
+        store = AccountStore()
+        poller = Poller(store: store)
+        poller.onUpdate = { [weak self] _ in self?.render() }
         rebuildMenu()
         renderIcon()
         poller.start()
