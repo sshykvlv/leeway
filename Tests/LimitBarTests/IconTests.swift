@@ -2,7 +2,7 @@ import XCTest
 @testable import LimitBar
 
 final class IconTests: XCTestCase {
-    func testBarLevelsRemainingFromWorstWindow() {
+    func testBarLevelsUsedFromWorstWindow() {
         let states: [AccountState] = [
             .ok(Usage(fiveHour: .init(utilization: 62, resetsAt: nil),
                       sevenDay: .init(utilization: 31, resetsAt: nil)), fetchedAt: .init()),
@@ -10,10 +10,10 @@ final class IconTests: XCTestCase {
             .pending,
         ]
         let levels = IconRenderer.barLevels(states)
-        XCTAssertEqual(levels[0].remaining!, 0.38, accuracy: 0.001) // 1 − 0.62 (worst window)
+        XCTAssertEqual(levels[0].used!, 0.62, accuracy: 0.001) // worst window utilization
         XCTAssertEqual(levels[0].severity, .normal)
-        XCTAssertNil(levels[1].remaining)                            // no data → empty track
-        XCTAssertNil(levels[2].remaining)
+        XCTAssertNil(levels[1].used)                           // no data → empty track
+        XCTAssertNil(levels[2].used)
     }
 
     func testWarnSeverityAboveSeventyPercentUsed() {
@@ -27,13 +27,13 @@ final class IconTests: XCTestCase {
                                            sevenDay: nil), fetchedAt: .init())]
         let level = IconRenderer.barLevels(s)[0]
         XCTAssertEqual(level.severity, .danger)
-        XCTAssertEqual(level.remaining!, 0.05, accuracy: 0.001)
+        XCTAssertEqual(level.used!, 0.95, accuracy: 0.001)
     }
 
     func testStaleUsesUsageToo() {
         let s: [AccountState] = [.stale(Usage(fiveHour: .init(utilization: 40, resetsAt: nil),
                                               sevenDay: nil), fetchedAt: .init(), badge: "offline")]
-        XCTAssertEqual(IconRenderer.barLevels(s)[0].remaining!, 0.60, accuracy: 0.001)
+        XCTAssertEqual(IconRenderer.barLevels(s)[0].used!, 0.40, accuracy: 0.001)
     }
 
     func testImageIsColoredWhenHasData() {

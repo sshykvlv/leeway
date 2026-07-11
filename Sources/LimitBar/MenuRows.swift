@@ -18,13 +18,6 @@ struct AccountRowView: View {
         }
     }
 
-    private var serviceTint: Color {
-        switch kind {
-        case .claudeMain, .claudeOAuth: return Color(nsColor: NSColor(srgbRed: 0.80, green: 0.44, blue: 0.31, alpha: 1)) // Anthropic clay
-        case .codex: return Color(nsColor: NSColor(srgbRed: 0.36, green: 0.38, blue: 0.42, alpha: 1))                    // graphite
-        }
-    }
-
     private var identityHelp: String {
         var lines = [name, serviceLabel]
         if let plan, !plan.isEmpty { lines[1] += " · \(plan)" }
@@ -41,16 +34,12 @@ struct AccountRowView: View {
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(hovered ? Color.white : Color.primary)
                     .lineLimit(1)
-                HStack(spacing: 0) {
-                    Text(serviceLabel)
-                        .foregroundStyle(hovered ? Color.white : serviceTint)
-                    if let plan, !plan.isEmpty {
-                        Text(" · \(plan)")
-                            .foregroundStyle(hovered ? Color.white.opacity(0.8) : Color(nsColor: .secondaryLabelColor))
-                    }
-                }
-                .font(.system(size: 10, weight: .medium))
-                .lineLimit(1)
+                // Нейтральный вторичный текст (по гайдлайнам macOS), а не брендовый цвет:
+                // сервис читается словом, смысловой цвет несут кольца. На выделении — белый.
+                Text(plan.map { "\(serviceLabel) · \($0)" } ?? serviceLabel)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(hovered ? Color.white.opacity(0.85) : Color(nsColor: .secondaryLabelColor))
+                    .lineLimit(1)
             }
             .frame(width: 168, alignment: .leading)
             .help(identityHelp)
@@ -103,7 +92,7 @@ struct AccountRowView: View {
             }
             return label
         }()
-        RingGauge(value: window?.utilization, caption: caption, color: gaugeColor(util))
+        RingGauge(value: window?.utilization, caption: caption, color: gaugeColor(util), hovered: hovered)
             .help(resetHelp(title: title, window: window))
     }
 
@@ -155,6 +144,7 @@ private struct RingGauge: View {
     let value: Double?
     let caption: String
     let color: Color
+    var hovered: Bool = false
 
     private static let diameter: CGFloat = 22
     private static let lineWidth: CGFloat = 3
@@ -164,11 +154,17 @@ private struct RingGauge: View {
         return min(max(value / 100, 0), 1)
     }
 
+    // На выделенной (синей) строке серые/тёмные элементы теряют контраст —
+    // на hover подкручиваем цифру/подпись/трек под светлый фон.
+    private var numberColor: Color { hovered ? .white : .primary }
+    private var captionColor: Color { hovered ? .white.opacity(0.75) : Color(nsColor: .tertiaryLabelColor) }
+    private var trackColor: Color { hovered ? .white.opacity(0.3) : Color(nsColor: .quaternaryLabelColor) }
+
     var body: some View {
         VStack(spacing: 1.5) {
             ZStack {
                 Circle()
-                    .stroke(Color(nsColor: .quaternaryLabelColor), lineWidth: Self.lineWidth)
+                    .stroke(trackColor, lineWidth: Self.lineWidth)
                 if value != nil {
                     Circle()
                         .trim(from: 0, to: fraction)
@@ -178,14 +174,14 @@ private struct RingGauge: View {
                 Text(value.map { "\(Int($0))" } ?? "—")
                     .font(.system(size: 9, weight: .medium))
                     .monospacedDigit()
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(numberColor)
                     .frame(width: Self.diameter, height: Self.diameter)
                     .multilineTextAlignment(.center)
             }
             .frame(width: Self.diameter, height: Self.diameter)
             Text(caption)
                 .font(.system(size: 8))
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(captionColor)
         }
     }
 }
