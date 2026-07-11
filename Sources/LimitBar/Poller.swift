@@ -13,6 +13,7 @@ final class Poller {
     var onUpdate: (([UUID: AccountState]) -> Void)?
     let alertEngine = AlertEngine()
     var onAlerts: (([AlertEvent]) -> Void)?
+    private let burnRateEstimator = BurnRateEstimator()
 
     private var codexAccessOverride: [UUID: String] = [:]   // refreshed token per codex account
     private var ownTokens: [UUID: OAuthTokens] = [:]
@@ -52,8 +53,9 @@ final class Poller {
         if force, let last = lastFetch(account.id), now.timeIntervalSince(last) < 10 { return }
         nextAllowed[account.id] = now.addingTimeInterval(Self.interval - 1)
         do {
-            let usage = try await fetchUsage(for: account)
+            let fetched = try await fetchUsage(for: account)
             backoffLevel[account.id] = nil
+            let usage = withBurnRateForecast(account: account, usage: fetched)
             states[account.id] = .ok(usage, fetchedAt: Date())
             // Движок всегда обрабатывает опрос (чтобы состояние прогревалось даже пока
             // алерты выключены) — гейт "включено ли" живёт в AppDelegate, не здесь.
@@ -98,6 +100,27 @@ final class Poller {
                 return try await CodexProvider().fetchUsage(accessToken: fresh)
             }
         }
+    }
+
+    /// Прогоняет свежие utilization-сэмплы через BurnRateEstimator и, если прогноз
+    /// исчерпания наступает раньше resetsAt окна, заполняет им projectedExhaustion.
+    /// Без resetsAt прогноз не показываем — не с чем сравнить, "врезаться" не во что.
+    private func withBurnRateForecast(account: Account, usage: Usage) -> Usage {
+        let now = Date()
+        func forecast(_ window: UsageWindow?, keySuffix: String) -> UsageWindow? {
+            guard let window else { return nil }
+            let key = "\(account.id):\(keySuffix)"
+            burnRateEstimator.record(key: key, utilization: window.utilization, at: now)
+            guard let resetsAt = window.resetsAt,
+                  let projected = burnRateEstimator.projectedExhaustion(key: key, now: now),
+                  projected < resetsAt else {
+                return window
+            }
+            return UsageWindow(utilization: window.utilization, resetsAt: window.resetsAt,
+                                projectedExhaustion: projected)
+        }
+        return Usage(fiveHour: forecast(usage.fiveHour, keySuffix: "5h"),
+                     sevenDay: forecast(usage.sevenDay, keySuffix: "7d"))
     }
 
     /// Fetches an account's identity (email + plan) once and caches it via the store.

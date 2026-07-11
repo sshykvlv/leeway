@@ -3,6 +3,10 @@ import Foundation
 struct UsageWindow: Equatable {
     let utilization: Double      // 0…100, сколько ИЗРАСХОДОВАНО
     let resetsAt: Date?
+    // Прогноз момента исчерпания (100%) при текущем темпе — заполняется Poller'ом
+    // только когда он наступает раньше resetsAt (см. BurnRate.swift). Default сохраняет
+    // все существующие вызовы UsageWindow(utilization:resetsAt:) компилируемыми.
+    var projectedExhaustion: Date? = nil
 }
 
 struct Usage: Equatable {

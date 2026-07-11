@@ -101,6 +101,9 @@ struct AccountRowView: View {
             let rel = RelativeDateTimeFormatter(); rel.unitsStyle = .full
             lines.append("Resets \(absolute) (\(rel.localizedString(for: resetsAt, relativeTo: .now)))")
         }
+        if let projected = window.projectedExhaustion, let label = ResetClock.label(projected) {
+            lines.append("At this pace, hits 100% ~\(label)")
+        }
         return lines.joined(separator: "\n")
     }
 }
@@ -158,6 +161,16 @@ private struct RingGauge: View {
         return exhausted ? Color(nsColor: .systemRed) : Color(nsColor: .secondaryLabelColor)
     }
 
+    // Прогноз исчерпания заменяет собой обычную подпись окна ("5h" → "5h → 15:40"),
+    // чтобы не отъедать дополнительную строку в и без того компактном ряду.
+    private var forecastText: String? {
+        guard let projected = window?.projectedExhaustion, let time = ResetClock.label(projected) else { return nil }
+        return "\(label) → \(time)"
+    }
+    private var forecastColor: Color {
+        hovered ? .white.opacity(0.9) : Color(nsColor: .systemOrange)
+    }
+
     var body: some View {
         HStack(spacing: 5) {
             ZStack {
@@ -176,9 +189,10 @@ private struct RingGauge: View {
             }
             .frame(width: Self.diameter, height: Self.diameter)
             VStack(alignment: .leading, spacing: 0) {
-                Text(label)
+                Text(forecastText ?? label)
                     .font(.system(size: 8, weight: .medium))
-                    .foregroundStyle(labelColor)
+                    .foregroundStyle(forecastText != nil ? forecastColor : labelColor)
+                    .lineLimit(1)
                 Text(resetText)
                     .font(.system(size: 9, weight: exhausted ? .semibold : .regular))
                     .monospacedDigit()

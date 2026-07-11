@@ -28,9 +28,10 @@ enum MockData {
                 fiveHour: UsageWindow(utilization: 100, resetsAt: now.addingTimeInterval(82 * 60)),
                 sevenDay: UsageWindow(utilization: 87, resetsAt: now.addingTimeInterval(2.6 * 86400))
             ), fetchedAt: now)
-        case accounts[1].id:   // рабочая середина
+        case accounts[1].id:   // рабочая середина + прогноз выгорания (демо burn-rate)
             return .ok(Usage(
-                fiveHour: UsageWindow(utilization: 42, resetsAt: now.addingTimeInterval(3.2 * 3600)),
+                fiveHour: UsageWindow(utilization: 42, resetsAt: now.addingTimeInterval(3.2 * 3600),
+                                       projectedExhaustion: now.addingTimeInterval(2 * 3600)),
                 sevenDay: UsageWindow(utilization: 18, resetsAt: now.addingTimeInterval(4.8 * 86400))
             ), fetchedAt: now)
         default:               // спокойный + жёлтая зона недельного
