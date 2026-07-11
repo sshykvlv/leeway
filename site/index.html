@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LimitBar — Claude Code &amp; Codex usage limits in your Mac menu bar</title>
+<meta name="description" content="LimitBar is a tiny macOS menu-bar app that shows your Claude Code and Codex usage limits live — the 5-hour window and the weekly cap, for every account you run. Know there's headroom before you fire the big job, and see exactly when the wall resets. Free, open source, notarized by Apple." />
+<meta name="keywords" content="claude code usage limit, claude code rate limit tracker, claude 5 hour window, claude weekly limit, codex usage limit, chatgpt codex quota, anthropic usage monitor menu bar, claude max limits, ai coding agent limits mac" />
+<meta name="author" content="NORM — app@ykv.lv" />
+<link rel="canonical" href="https://limitbar.app/" />
+<meta property="og:title" content="LimitBar — your AI limits, always in sight" />
+<meta property="og:description" content="Claude Code &amp; Codex usage across every account — live gauges in the macOS menu bar. 5-hour window, weekly cap, reset times. Free &amp; open source, notarized by Apple." />
+<meta property="og:image" content="https://limitbar.app/assets/og.png" />
+<meta property="og:image:width" content="1280" />
+<meta property="og:image:height" content="640" />
+<meta property="og:url" content="https://limitbar.app/" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="LimitBar — Claude Code &amp; Codex limits in your menu bar" />
+<meta name="twitter:description" content="Live usage gauges for every Claude Code and Codex account — 5-hour window, weekly cap, reset times. Free &amp; open source." />
+<meta name="twitter:image" content="https://limitbar.app/assets/og.png" />
+<meta name="theme-color" content="#0a0a0e" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<!-- TODO: umami site id for limitbar → <script defer src="https://stats.ykv.lv/script.js" data-website-id="…"></script> -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "LimitBar",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "macOS 13 Ventura or later",
+  "softwareVersion": "0.1",
+  "description": "A tiny macOS menu-bar app that shows Claude Code and Codex usage limits live — the 5-hour window and the weekly cap for every account, with reset times. Built for developers running AI coding agents on subscription plans.",
+  "url": "https://limitbar.app/",
+  "downloadUrl": "https://github.com/sshykvlv/limitbar/releases/latest",
+  "softwareHelp": "https://github.com/sshykvlv/limitbar",
+  "license": "https://opensource.org/license/mit",
+  "featureList": [
+    "Live 5-hour and weekly usage gauges for Claude Code and Codex",
+    "Multiple accounts side by side — add extra Claude accounts via OAuth",
+    "Menu-bar bars turn yellow and red as a window fills up",
+    "Exact reset times on hover, refresh countdown when a window is exhausted",
+    "Tokens stay in the macOS Keychain; talks only to the official usage endpoints",
+    "Universal binary (Apple Silicon + Intel), signed and notarized by Apple"
+  ],
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Organization", "name": "NORM", "email": "app@ykv.lv" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Where do the usage numbers come from?",
+      "acceptedAnswer": { "@type": "Answer", "text": "From the official usage endpoints, with your own tokens: Claude accounts use the same OAuth usage API the Claude apps read, and Codex uses your existing local login. The gauges show the same 5-hour and weekly windows the services enforce." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does checking my limits burn my quota?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The usage endpoint is a metadata call, not a model request — polling it does not consume tokens or count against your windows." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I watch several Claude accounts at once?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — that is the point. LimitBar picks up your main Claude Code login automatically and lets you add more accounts through the normal Claude OAuth flow. Each account gets its own row and its own gauges, and you can rename rows freely." }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my tokens safe?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Tokens are stored in the macOS Keychain, never in plain files. LimitBar talks only to the official Anthropic and OpenAI endpoints, and every line of it is open source on GitHub." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why isn't LimitBar on the Mac App Store?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It reads your existing CLI logins (like the local Codex session) to save you re-authenticating — the App Store sandbox forbids that. So it ships directly, signed and notarized by Apple, like most developer utilities." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is LimitBar free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — free and open source under the MIT license. There is an optional tip jar if it saves you from a mid-task lockout." }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<!-- brand glyph: three gauge bars, reused via <use> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="bars" viewBox="0 0 24 24">
+    <rect x="3"    y="6"  width="4.4" height="15" rx="2.2" fill="currentColor"/>
+    <rect x="9.8"  y="10" width="4.4" height="11" rx="2.2" fill="currentColor"/>
+    <rect x="16.6" y="16" width="4.4" height="5"  rx="2.2" fill="currentColor" class="bars-low"/>
+  </symbol>
+  <symbol id="gh" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol>
+</svg>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">Limit<span class="brand-accent">Bar</span></span>
+  </a>
+  <a class="nav-buy" href="#get">Get LimitBar · free</a>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="glow" aria-hidden="true"></div>
+    <img class="hero-icon" src="/assets/icon.png" alt="LimitBar app icon" width="160" height="160" />
+    <h1>Your AI limits,<br /><em>always in sight.</em></h1>
+    <p class="lede">Claude Code and Codex enforce a 5-hour window and a weekly cap — and tell you about it mid-task. LimitBar puts every account's live gauges in the macOS menu bar: see the headroom before you fire the big job, and exactly when the wall resets. No dashboards, no guessing.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/sshykvlv/limitbar/releases/latest/download/LimitBar.zip" data-umami-event="download">Download for macOS</a>
+      <span class="trust">Free &amp; open source · notarized by Apple</span>
+    </div>
+  </section>
+
+  <!-- SHOWCASE: macOS menu bar + dropdown with account rows -->
+  <section class="showcase">
+    <div class="screen">
+      <div class="menubar">
+        <svg class="mb-glyph" viewBox="0 0 24 16" aria-hidden="true"><rect x="2" y="3" width="20" height="4" rx="2"/><rect x="2" y="9" width="20" height="4" rx="2"/></svg>
+        <span class="mb-highlight"><svg class="mb-bars" aria-hidden="true"><use href="#bars"/></svg></span>
+        <span class="mb-clock">Wed 9:41</span>
+      </div>
+      <div class="menu" role="menu" aria-label="LimitBar menu">
+        <div class="acct">
+          <div class="acct-id">
+            <span class="acct-name">Main</span>
+            <span class="acct-svc claude">Claude Code · Max 20x</span>
+          </div>
+          <span class="ring g62" style="--v:62"><span>62</span></span>
+          <span class="ring g41" style="--v:41"><span>41</span></span>
+        </div>
+        <div class="acct">
+          <div class="acct-id">
+            <span class="acct-name">Max 2</span>
+            <span class="acct-svc claude">Claude Code · Max 20x</span>
+          </div>
+          <span class="ring warn" style="--v:84"><span>84</span></span>
+          <span class="ring" style="--v:53"><span>53</span></span>
+        </div>
+        <div class="acct">
+          <div class="acct-id">
+            <span class="acct-name">Codex</span>
+            <span class="acct-svc codex">Codex · Plus</span>
+          </div>
+          <span class="ring hot" style="--v:97"><span>97</span></span>
+          <span class="ring" style="--v:71"><span>71</span></span>
+        </div>
+        <div class="mi-sep"></div>
+        <div class="mi"><span class="mi-label">Add Claude Account…</span></div>
+        <div class="mi mi-dim"><span class="mi-label">Updated 12s ago</span></div>
+        <div class="mi-sep"></div>
+        <div class="mi"><span class="mi-label">Quit LimitBar</span><span class="mi-kbd">⌘Q</span></div>
+      </div>
+    </div>
+    <p class="showcase-cap">Rows are accounts; rings are the 5-hour and weekly windows. Green is headroom, yellow is “wrap it up”, red shows when it refreshes — <em>↻2h</em> beats a surprise lockout.</p>
+  </section>
+
+  <!-- HIGHLIGHTS -->
+  <section class="bites">
+    <div class="bite">
+      <span class="emoji">👀</span>
+      <h3>Every account, one glance</h3>
+      <p>Main plan, the second Max account, Codex on the side — each one is a row with its own live gauges. Add extra Claude accounts right from the menu via OAuth.</p>
+    </div>
+    <div class="bite">
+      <span class="emoji">🧱</span>
+      <h3>The wall, before you hit it</h3>
+      <p>The menu-bar bars slide green → yellow → red as a window fills. Hover any ring for the exact reset time — plan the heavy run instead of discovering the cap mid-task.</p>
+    </div>
+    <div class="bite">
+      <span class="emoji">🪶</span>
+      <h3>Native, tiny, notarized</h3>
+      <p>Pure Swift, a couple of megabytes, tokens in the Keychain. Signed and notarized by Apple — double-click and it just opens, no scary warnings.</p>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section class="how">
+    <h2>Three steps</h2>
+    <ol class="steps">
+      <li><span class="num">1</span><div><h4>Open it</h4><p>Drag LimitBar to Applications and double-click. Three little bars appear in your menu bar.</p></div></li>
+      <li><span class="num">2</span><div><h4>It finds your logins</h4><p>Your Claude Code session and local Codex login are picked up automatically. Add more Claude accounts from the menu — a normal OAuth window, tokens go straight to the Keychain.</p></div></li>
+      <li><span class="num">3</span><div><h4>Glance up</h4><p>Green means go. Yellow means wrap it up. Red shows when the window refreshes — switch accounts or take the walk you owed yourself.</p></div></li>
+    </ol>
+  </section>
+
+  <!-- GET -->
+  <section class="buy" id="get">
+    <div class="price-card">
+      <p class="price"><svg class="price-mark" aria-hidden="true"><use href="#bars"/></svg>Free</p>
+      <p class="price-sub">Open source. Yours forever.</p>
+      <a class="btn btn-primary" href="https://github.com/sshykvlv/limitbar/releases/latest/download/LimitBar.zip" data-umami-event="download">Download for macOS</a>
+      <p class="price-meta">Apple Silicon &amp; Intel · macOS 13+ · notarized</p>
+      <a class="btn btn-ghost btn-gh" href="https://github.com/sshykvlv/limitbar" data-umami-event="github"><svg class="gh-mark" aria-hidden="true"><use href="#gh"/></svg>View on GitHub</a>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <h2>FAQ</h2>
+    <div class="faq-list">
+      <details>
+        <summary>Where do the usage numbers come from?</summary>
+        <p>From the official usage endpoints, with your own tokens: Claude accounts use the same OAuth usage API the Claude apps read, and Codex uses your existing local login. The gauges show the same 5-hour and weekly windows the services enforce.</p>
+      </details>
+      <details>
+        <summary>Does checking my limits burn my quota?</summary>
+        <p>No. The usage endpoint is a metadata call, not a model request — polling it doesn’t consume tokens or count against your windows.</p>
+      </details>
+      <details>
+        <summary>Can I watch several Claude accounts at once?</summary>
+        <p>Yes — that’s the point. LimitBar picks up your main Claude Code login automatically and lets you add more accounts through the normal Claude OAuth flow. Each account gets its own row and its own gauges, and you can rename rows freely.</p>
+      </details>
+      <details>
+        <summary>Are my tokens safe?</summary>
+        <p>Tokens live in the macOS Keychain, never in plain files. LimitBar talks only to the official Anthropic and OpenAI endpoints, and every line of it is open source on GitHub.</p>
+      </details>
+      <details>
+        <summary>Why isn’t it on the Mac App Store?</summary>
+        <p>It reads your existing CLI logins (like the local Codex session) to save you re-authenticating — the App Store sandbox forbids that. So it ships directly, signed and notarized by Apple, like most developer utilities.</p>
+      </details>
+      <details>
+        <summary>Is LimitBar really free?</summary>
+        <p>Yes — free and open source under the MIT license. There’s an optional tip jar if it saves you from a mid-task lockout.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- TIP -->
+  <section class="tipbar">
+    <p class="tip-pitch">LimitBar is free and open source. If it saved your evening run from a surprise lockout, a coffee keeps it going.</p>
+    <a class="btn btn-ghost" href="https://buy.stripe.com/5kQ14ogr4dq9fky4Mm0Jq02" data-umami-event="tip">Pay what you want — leave a tip</a>
+  </section>
+</main>
+
+<footer class="footer">
+  <a class="brand brand-sm" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">Limit<span class="brand-accent">Bar</span></span>
+  </a>
+  <span class="footer-links">
+    <a href="https://github.com/sshykvlv/limitbar" data-umami-event="github">GitHub</a>
+    <a href="https://lidless.ykv.lv/">Lidless — its sibling</a>
+    <a href="mailto:app@ykv.lv">app@ykv.lv</a>
+  </span>
+</footer>
+
+<script>
+  // Live menu-bar clock — real weekday + time, like the real thing.
+  (function () {
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function tick() {
+      var d = new Date();
+      var wd = d.toLocaleDateString('en-US', { weekday: 'short' });
+      var el = document.querySelector('.mb-clock');
+      if (el) el.textContent = wd + ' ' + d.getHours() + ':' + pad(d.getMinutes());
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
+
+</body>
+</html>
