@@ -28,7 +28,57 @@ enum IconRenderer {
         }
     }
 
-    static func image(levels: [BarLevel]) -> NSImage {
+    /// Стиль менюбар-иконки (переключалка в меню, идея владельца 12.07).
+    enum Style: String {
+        case bars, rings
+    }
+
+    /// Читаемость вложенных колец на 18pt кончается на трёх: четвёртое кольцо —
+    /// уже точка (проверено прототипом 12.07). Дальше честный фолбэк в бары.
+    static let maxRings = 3
+
+    static func image(levels: [BarLevel], style: Style = .bars) -> NSImage {
+        if style == .rings, levels.count <= maxRings, !levels.isEmpty {
+            return ringsImage(levels: levels)
+        }
+        return barsImage(levels: levels)
+    }
+
+    /// Вложенные кольца — кольцо на аккаунт (внешнее = первый аккаунт).
+    /// Заполнение = израсходовано, от 12 часов по часовой; цвет по severity.
+    private static func ringsImage(levels: [BarLevel]) -> NSImage {
+        let canvas: CGFloat = 18
+        let hasData = levels.contains { $0.used != nil }
+        let img = NSImage(size: NSSize(width: canvas, height: canvas), flipped: false) { _ in
+            let c = NSPoint(x: canvas / 2, y: canvas / 2)
+            let maxR: CGFloat = canvas / 2 - 1
+            let n = CGFloat(levels.count)
+            let w = min(3.2, maxR / (n + 1.2))
+            let gap = w * 0.5
+            for (i, level) in levels.enumerated() {
+                let r = maxR - CGFloat(i) * (w + gap) - w / 2
+                guard r > w * 0.4 else { break }
+                let track = NSBezierPath(ovalIn: NSRect(x: c.x - r, y: c.y - r, width: r * 2, height: r * 2))
+                track.lineWidth = w
+                NSColor(white: 1.0, alpha: 0.35).setStroke()
+                track.stroke()
+                if let used = level.used, used > 0 {
+                    let arc = NSBezierPath()
+                    arc.lineWidth = w
+                    arc.lineCapStyle = .round
+                    arc.appendArc(withCenter: c, radius: r,
+                                  startAngle: 90, endAngle: 90 - 360 * min(used, 1), clockwise: true)
+                    fillColor(for: level.severity).setStroke()
+                    arc.stroke()
+                }
+            }
+            return true
+        }
+        img.isTemplate = !hasData
+        return img
+    }
+
+    private static func barsImage(levels: [BarLevel]) -> NSImage {
         // Столбик на аккаунт, высота = сколько израсходовано у этой модели (снизу вверх),
         // цвет — зелёный/жёлтый/красный по уровню. Никаких цифр: столбики сами показывают
         // реальный статус каждой модели.

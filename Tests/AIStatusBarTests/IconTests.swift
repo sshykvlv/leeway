@@ -65,4 +65,31 @@ final class IconTests: XCTestCase {
         let img = IconRenderer.image(levels: IconRenderer.barLevels(s))
         XCTAssertFalse(img.isTemplate)
     }
+
+    // MARK: стиль «вложенные кольца» (12.07)
+
+    private func okLevel(_ util: Double) -> AccountState {
+        .ok(Usage(fiveHour: .init(utilization: util, resetsAt: nil), sevenDay: nil), fetchedAt: .init())
+    }
+
+    func testRingsStyleProducesSquareIcon() {
+        let levels = IconRenderer.barLevels([okLevel(62), okLevel(87)])
+        let img = IconRenderer.image(levels: levels, style: .rings)
+        XCTAssertEqual(img.size.width, img.size.height)
+        XCTAssertFalse(img.isTemplate)
+    }
+
+    func testRingsFallsBackToBarsBeyondMax() {
+        let many = IconRenderer.barLevels((0..<IconRenderer.maxRings + 1).map { _ in okLevel(50) })
+        let rings = IconRenderer.image(levels: many, style: .rings)
+        let bars = IconRenderer.image(levels: many, style: .bars)
+        // фолбэк: при N > maxRings стиль rings отдаёт ту же геометрию, что bars
+        XCTAssertEqual(rings.size, bars.size)
+        XCTAssertNotEqual(rings.size.width, rings.size.height)
+    }
+
+    func testRingsEmptyLevelsFallBackToBars() {
+        let img = IconRenderer.image(levels: [], style: .rings)
+        XCTAssertTrue(img.isTemplate)
+    }
 }
