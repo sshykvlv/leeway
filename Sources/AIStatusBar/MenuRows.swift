@@ -87,14 +87,19 @@ struct AccountRowView: View {
         .onHover { hovered = $0 }
     }
 
+    // Сегменты на естественной ширине, прижаты к правому краю (фидбэк владельца
+    // 12.07: компактнее и ближе друг к другу). Правые края у всех строк совпадают,
+    // граница колонок гуляет на ширину цифр — tabular-цифры сводят дрожь к минимуму.
     @ViewBuilder
     private func windows(usage: Usage?) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 10) {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
             WindowSegment(label: "5h", window: usage?.fiveHour, hovered: hovered)
                 .help(resetHelp(title: "5-hour window", window: usage?.fiveHour))
             WindowSegment(label: "7d", window: usage?.sevenDay, hovered: hovered)
                 .help(resetHelp(title: "Weekly window", window: usage?.sevenDay))
         }
+        // Кластер окон не сжимается — при длинной identity усекается она, не времена.
+        .layoutPriority(1)
     }
 
     /// Multi-line tooltip: "<title>\n<used>% used · <left>% left\nResets <abs> (<rel>)".
@@ -143,8 +148,6 @@ private struct WindowSegment: View {
     let window: UsageWindow?
     var hovered: Bool = false
 
-    private static let width: CGFloat = 112
-
     private var percentColor: Color {
         if hovered { return .white }
         let util = window?.utilization ?? 0
@@ -188,7 +191,7 @@ private struct WindowSegment: View {
             .foregroundColor(timeColor))
             .monospacedDigit()
             .lineLimit(1)
-            .frame(width: Self.width, alignment: .leading)
+            .fixedSize()
     }
 }
 
