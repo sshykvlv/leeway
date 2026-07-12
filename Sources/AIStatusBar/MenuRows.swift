@@ -37,10 +37,48 @@ struct AccountRowView: View {
     // сервисы при одинаковых identity, а тут identity и есть имя сервиса.
     private var showsSuffix: Bool { resolvedName != serviceSuffix }
 
-    private var identityHelp: String {
-        var lines = [name, serviceLabel]
-        if let plan, !plan.isEmpty { lines[1] += " · \(plan)" }
-        if let email, !email.isEmpty { lines.append(email) }
+    /// Полный тултип пункта меню. NSMenu во время трекинга подавляет view-тултипы
+    /// (SwiftUI .help / NSView.toolTip) — работает только NSMenuItem.toolTip,
+    /// поэтому вся детализация собирается одной простынёй на строку.
+    static func toolTip(name: String, state: AccountState, kind: AccountKind,
+                        email: String?, plan: String?) -> String {
+        let serviceLabel: String
+        switch kind {
+        case .claudeMain, .claudeOAuth: serviceLabel = "Claude Code"
+        case .codex: serviceLabel = "Codex"
+        }
+        var head = [name, serviceLabel]
+        if let plan, !plan.isEmpty { head[1] += " · \(plan)" }
+        if let email, !email.isEmpty { head.append(email) }
+        var blocks = [head.joined(separator: "\n")]
+        switch state {
+        case .pending:
+            blocks.append("Loading…")
+        case .failed(let badge):
+            blocks.append(badge)
+        case .ok(let usage, _):
+            blocks.append(windowHelp(title: "5-hour window", window: usage.fiveHour))
+            blocks.append(windowHelp(title: "Weekly window", window: usage.sevenDay))
+        case .stale(let usage, _, let badge):
+            blocks.append(windowHelp(title: "5-hour window", window: usage.fiveHour))
+            blocks.append(windowHelp(title: "Weekly window", window: usage.sevenDay))
+            blocks.append("⚠ \(badge)")
+        }
+        return blocks.joined(separator: "\n\n")
+    }
+
+    /// Блок одного окна: "<title>\n<used>% used · <left>% left\nResets <abs> (<rel>)".
+    private static func windowHelp(title: String, window: UsageWindow?) -> String {
+        guard let window else { return "\(title)\nNo data" }
+        let used = Int(window.utilization)
+        var lines = [title, "\(used)% used · \(100 - used)% left"]
+        if let resetsAt = window.resetsAt, let absolute = ResetClock.label(resetsAt) {
+            let rel = RelativeDateTimeFormatter(); rel.unitsStyle = .full
+            lines.append("Resets \(absolute) (\(rel.localizedString(for: resetsAt, relativeTo: .now)))")
+        }
+        if let projected = window.projectedExhaustion, let label = ResetClock.label(projected) {
+            lines.append("At this pace, hits 100% ~\(label)")
+        }
         return lines.joined(separator: "\n")
     }
 
@@ -54,11 +92,9 @@ struct AccountRowView: View {
                 .foregroundColor(hovered ? Color.white.opacity(0.85) : Color(nsColor: .secondaryLabelColor)))
                 .lineLimit(1)
                 .truncationMode(.middle)
-                .help(identityHelp)
-            if case .stale(_, _, let badge) = state {
+            if case .stale = state {
                 Image(systemName: "exclamationmark.triangle")
                     .font(.system(size: 10)).foregroundStyle(.orange)
-                    .help(badge)
             }
             // Identity гибкая, сегменты окон прижаты вправо: фиксированная ширина
             // выравнивает проценты и времена в столбцы между строками.
@@ -97,9 +133,7 @@ struct AccountRowView: View {
     private func windows(usage: Usage?) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
             PercentCell(window: usage?.fiveHour, hovered: hovered)
-                .help(resetHelp(title: "5-hour window", window: usage?.fiveHour))
             PercentCell(window: usage?.sevenDay, hovered: hovered)
-                .help(resetHelp(title: "Weekly window", window: usage?.sevenDay))
             boltSlot(usage: usage)
         }
         // Кластер окон не сжимается — при длинной identity усекается она, не цифры.
@@ -121,31 +155,15 @@ struct AccountRowView: View {
     @ViewBuilder
     private func boltSlot(usage: Usage?) -> some View {
         Group {
-            if let forecast = earliestForecast(usage) {
+            if earliestForecast(usage) != nil {
                 Image(systemName: "bolt.fill")
                     .font(.system(size: 9, weight: .semibold))
                     .foregroundStyle(hovered ? Color.white : Color(nsColor: .systemOrange))
-                    .help("At this pace, hits 100% ~\(ResetClock.label(forecast) ?? "soon")")
             }
         }
         .frame(width: 16, alignment: .trailing)
     }
 
-    /// Multi-line tooltip: "<title>\n<used>% used · <left>% left\nResets <abs> (<rel>)".
-    private func resetHelp(title: String, window: UsageWindow?) -> String {
-        guard let window else { return "\(title)\nNo data" }
-        let used = Int(window.utilization)
-        let remaining = 100 - used
-        var lines = [title, "\(used)% used · \(remaining)% left"]
-        if let resetsAt = window.resetsAt, let absolute = ResetClock.label(resetsAt) {
-            let rel = RelativeDateTimeFormatter(); rel.unitsStyle = .full
-            lines.append("Resets \(absolute) (\(rel.localizedString(for: resetsAt, relativeTo: .now)))")
-        }
-        if let projected = window.projectedExhaustion, let label = ResetClock.label(projected) {
-            lines.append("At this pace, hits 100% ~\(label)")
-        }
-        return lines.joined(separator: "\n")
-    }
 }
 
 /// Абсолютное время сброса окна: сегодня — «19:00», иначе — «Tu 09:00»
@@ -221,6 +239,9 @@ enum MenuRowFactory {
         host.sizingOptions = []
         host.frame = NSRect(x: 0, y: 0, width: rowWidth, height: rowHeight)
         item.view = host
+        // Вся детализация — здесь: view-тултипы внутри NSMenu не показываются.
+        item.toolTip = AccountRowView.toolTip(name: account.name, state: state, kind: account.kind,
+                                              email: account.email, plan: account.plan)
         item.representedObject = account.id
         return item
     }

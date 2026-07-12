@@ -133,8 +133,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             guard let id = item.representedObject as? UUID,
                   let account = store.accounts.first(where: { $0.id == id }),
                   let host = item.view as? NSHostingView<AccountRowView> else { continue }
-            host.rootView = AccountRowView(name: account.name, state: poller.state(for: id),
+            let state = poller.state(for: id)
+            host.rootView = AccountRowView(name: account.name, state: state,
                                            kind: account.kind, email: account.email, plan: account.plan)
+            item.toolTip = AccountRowView.toolTip(name: account.name, state: state, kind: account.kind,
+                                                  email: account.email, plan: account.plan)
         }
     }
 
