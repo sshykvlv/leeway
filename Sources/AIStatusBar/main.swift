@@ -68,7 +68,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         let alerts = addAction("Usage Alerts", #selector(toggleUsageAlerts))
         alerts.state = UserDefaults.standard.bool(forKey: Self.usageAlertsKey) ? .on : .off
-        menu.addItem(iconStyleItem())
         addAction("Check for Updates…", #selector(checkUpdates))
         addAction("View on GitHub", #selector(openRepo))
         menu.addItem(.separator())
@@ -108,39 +107,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         updatedItem.title = "Updated \(f.string(from: Date()))"
     }
 
-    // MARK: icon style (bars / nested rings — идея владельца 12.07)
-    static let iconStyleKey = "iconStyle"
-
-    private var iconStyle: IconRenderer.Style {
-        IconRenderer.Style(rawValue: UserDefaults.standard.string(forKey: Self.iconStyleKey) ?? "") ?? .bars
-    }
-
-    private func iconStyleItem() -> NSMenuItem {
-        let parent = NSMenuItem(title: "Menu Bar Icon", action: nil, keyEquivalent: "")
-        let sub = NSMenu()
-        for (title, style) in [("Bars", IconRenderer.Style.bars), ("Nested Rings", .rings)] {
-            let item = NSMenuItem(title: title, action: #selector(setIconStyle(_:)), keyEquivalent: "")
-            item.target = self
-            item.representedObject = style.rawValue
-            item.state = iconStyle == style ? .on : .off
-            if style == .rings {
-                item.toolTip = "One ring per account, nested. With more than \(IconRenderer.maxRings) accounts the icon falls back to bars — rings get unreadable at menu-bar size."
-            }
-            sub.addItem(item)
-        }
-        parent.submenu = sub
-        return parent
-    }
-
-    @objc private func setIconStyle(_ sender: NSMenuItem) {
-        guard let raw = sender.representedObject as? String else { return }
-        UserDefaults.standard.set(raw, forKey: Self.iconStyleKey)
-        render()
-    }
-
     private func renderIcon() {
         let states = store.accounts.map { poller.state(for: $0.id) }
-        statusItem.button?.image = IconRenderer.image(levels: IconRenderer.barLevels(states), style: iconStyle)
+        statusItem.button?.image = IconRenderer.image(levels: IconRenderer.barLevels(states))
         statusItem.button?.toolTip = tooltip()
     }
 
