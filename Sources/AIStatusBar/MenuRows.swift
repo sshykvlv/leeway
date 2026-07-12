@@ -49,7 +49,8 @@ struct AccountRowView: View {
         }
         var head = [name, serviceLabel]
         if let plan, !plan.isEmpty { head[1] += " · \(plan)" }
-        if let email, !email.isEmpty { head.append(email) }
+        // Аккаунт, названный своим email-ом, не дублируем третьей строкой.
+        if let email, !email.isEmpty, email != name { head.append(email) }
         var blocks = [head.joined(separator: "\n")]
         switch state {
         case .pending:
