@@ -135,22 +135,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         sub.addItem(remove)
     }
 
-    /// Информационные пункты сабменю: без action — NSMenu сам рисует их серыми
-    /// (autoenablesItems). Оранжевый burn-rate прогноз — через attributedTitle.
+    /// Информационные пункты сабменю: без action (не кликаются), но с
+    /// attributedTitle — иначе autoenablesItems глушит их в один серый и
+    /// детали нечитаемы (фидбэк владельца 12.07: «неконтрастно»).
     private func addAccountDetails(_ sub: NSMenu, account: Account) {
-        var head: [String] = []
         let service = account.kind == .codex ? "Codex" : "Claude Code"
-        head.append(account.plan.map { "\(service) · \($0)" } ?? service)
-        if let email = account.email, !email.isEmpty, email != account.name { head.append(email) }
-        for line in head { sub.addItem(NSMenuItem(title: line, action: nil, keyEquivalent: "")) }
+        sub.addItem(infoItem(account.plan.map { "\(service) · \($0)" } ?? service, color: .secondaryLabelColor))
+        if let email = account.email, !email.isEmpty, email != account.name {
+            sub.addItem(infoItem(email, color: .secondaryLabelColor))
+        }
         sub.addItem(.separator())
 
         switch poller.state(for: account.id) {
         case .pending:
-            sub.addItem(NSMenuItem(title: "Loading…", action: nil, keyEquivalent: ""))
+            sub.addItem(infoItem("Loading…", color: .secondaryLabelColor))
             sub.addItem(.separator())
         case .failed(let badge):
-            sub.addItem(NSMenuItem(title: badge, action: nil, keyEquivalent: ""))
+            sub.addItem(infoItem(badge, color: .systemOrange))
             sub.addItem(.separator())
         case .ok(let usage, _), .stale(let usage, _, _):
             addWindowDetails(sub, title: "5-hour window", window: usage.fiveHour)
@@ -158,7 +159,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             addWindowDetails(sub, title: "Weekly window", window: usage.sevenDay)
             sub.addItem(.separator())
             if case .stale(_, _, let badge) = poller.state(for: account.id) {
-                sub.addItem(NSMenuItem(title: "⚠ \(badge)", action: nil, keyEquivalent: ""))
+                sub.addItem(infoItem("⚠ \(badge)", color: .systemOrange))
                 sub.addItem(.separator())
             }
         }
@@ -166,18 +167,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func addWindowDetails(_ sub: NSMenu, title: String, window: UsageWindow?) {
         let detail = AccountRowView.windowDetail(title: title, window: window)
-        sub.addItem(NSMenuItem(title: detail.summary, action: nil, keyEquivalent: ""))
+        // Заголовок окна — полноконтрастный, с semibold-названием окна.
+        sub.addItem(infoItem(detail.summary, color: .labelColor, semiboldPrefix: title))
         if let reset = detail.reset {
-            sub.addItem(NSMenuItem(title: reset, action: nil, keyEquivalent: ""))
+            sub.addItem(infoItem(reset, color: .secondaryLabelColor))
         }
         if let forecast = detail.forecast {
-            let item = NSMenuItem(title: forecast, action: nil, keyEquivalent: "")
-            item.attributedTitle = NSAttributedString(
-                string: forecast,
-                attributes: [.foregroundColor: NSColor.systemOrange,
-                             .font: NSFont.menuFont(ofSize: 0)])
-            sub.addItem(item)
+            sub.addItem(infoItem(forecast, color: .systemOrange))
         }
+    }
+
+    private func infoItem(_ text: String, color: NSColor, semiboldPrefix: String? = nil) -> NSMenuItem {
+        let item = NSMenuItem(title: text, action: nil, keyEquivalent: "")
+        let font = NSFont.menuFont(ofSize: 0)
+        let attributed = NSMutableAttributedString(
+            string: text, attributes: [.foregroundColor: color, .font: font])
+        if let prefix = semiboldPrefix, text.hasPrefix(prefix) {
+            let bold = NSFont.systemFont(ofSize: font.pointSize, weight: .semibold)
+            attributed.addAttribute(.font, value: bold, range: NSRange(location: 0, length: prefix.utf16.count))
+        }
+        item.attributedTitle = attributed
+        return item
     }
 
     private func render() {

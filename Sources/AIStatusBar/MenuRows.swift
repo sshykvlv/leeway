@@ -83,6 +83,12 @@ struct AccountRowView: View {
             case .ok(let usage, _), .stale(let usage, _, _):
                 windows(usage: usage)
             }
+            // Системную стрелку сабменю view-item не рисует — своя (просьба
+            // владельца 12.07: у пунктов с выпадайкой должна быть стрелка).
+            Image(systemName: "chevron.right")
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(hovered ? Color.white : Color(nsColor: .tertiaryLabelColor))
+                .padding(.leading, 2)
         }
         .padding(.horizontal, 12)
         .frame(width: MenuRowFactory.rowWidth, height: MenuRowFactory.rowHeight, alignment: .leading)
