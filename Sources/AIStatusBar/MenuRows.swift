@@ -146,6 +146,16 @@ private struct WindowChip: View {
     let window: UsageWindow?
     var hovered: Bool = false
 
+    // Семантически правильный фон чипа — fill-роль, не label-роль: label-цвета
+    // по HIG предназначены для текста. systemFill появился в macOS 14;
+    // на 13 остаёмся на quaternaryLabel (визуально эквивалентен).
+    static var chipFill: Color {
+        if #available(macOS 14.0, *) {
+            return Color(nsColor: .quaternarySystemFill)
+        }
+        return Color(nsColor: .quaternaryLabelColor)
+    }
+
     private var exhausted: Bool { (window?.utilization ?? 0) > 99 }
 
     private var forecast: Bool {
@@ -188,7 +198,7 @@ private struct WindowChip: View {
         .padding(.vertical, 2.5)
         .background(
             RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .fill(hovered ? Color.white.opacity(0.18) : Color(nsColor: .quaternaryLabelColor))
+                .fill(hovered ? Color.white.opacity(0.18) : Self.chipFill)
         )
     }
 }
@@ -209,6 +219,9 @@ enum MenuRowFactory {
         host.sizingOptions = []
         host.frame = NSRect(x: 0, y: 0, width: rowWidth, height: rowHeight)
         item.view = host
+        // Title у view-item не рисуется (NSMenuItem.view забирает отрисовку),
+        // но продолжает питать type-select и VoiceOver — заполняем всегда.
+        item.title = account.name
         item.representedObject = account.id
         return item
     }
