@@ -71,7 +71,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         addAction("Check for Updates…", #selector(checkUpdates))
         addAction("View on GitHub", #selector(openRepo))
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit Leeway",
+        menu.addItem(NSMenuItem(title: "Quit AI Status Bar",
                                 action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
     }
 
@@ -177,7 +177,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
     @objc private func checkUpdates() { Updates.check(announce: true) }
     @objc private func openRepo() {
-        NSWorkspace.shared.open(URL(string: "https://github.com/sshykvlv/leeway")!)
+        NSWorkspace.shared.open(URL(string: "https://github.com/sshykvlv/ai-status-bar")!)
     }
     @objc private func renameAccount(_ sender: NSMenuItem) {
         guard let id = sender.representedObject as? UUID,

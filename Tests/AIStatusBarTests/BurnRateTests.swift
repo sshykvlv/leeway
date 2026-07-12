@@ -1,5 +1,5 @@
 import XCTest
-@testable import Leeway
+@testable import AIStatusBar
 
 final class BurnRateEstimatorTests: XCTestCase {
     private let base = Date(timeIntervalSince1970: 1_700_000_000)

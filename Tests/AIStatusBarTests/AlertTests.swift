@@ -1,5 +1,5 @@
 import XCTest
-@testable import Leeway
+@testable import AIStatusBar
 
 final class AlertEngineTests: XCTestCase {
     private let accountID = UUID()

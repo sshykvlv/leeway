@@ -8,7 +8,7 @@ struct OAuthTokens: Codable, Equatable {
 }
 
 enum KeychainStore {
-    private static let ownService = "Leeway"
+    private static let ownService = "AIStatusBar"
 
     // MARK: чтение кредов Claude Code (read-only, ничего не пишем)
     static func claudeCodeTokens() -> OAuthTokens? {

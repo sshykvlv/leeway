@@ -1,16 +1,16 @@
 import XCTest
 import SwiftUI
-@testable import Leeway
+@testable import AIStatusBar
 
 /// Не проверка, а инструмент: рендерит AccountRowView во всех состояниях в PNG,
 /// чтобы смотреть вёрстку строки без запуска приложения и открытия меню.
-/// Запуск: `LEEWAY_RENDER_DIR=/tmp/rows swift test --filter RowRenderTests`
+/// Запуск: `AISTATUSBAR_RENDER_DIR=/tmp/rows swift test --filter RowRenderTests`
 /// Без переменной окружения — скип (в обычном прогоне ничего не пишет).
 final class RowRenderTests: XCTestCase {
     @MainActor
     func testRenderRowStates() throws {
-        guard let dir = ProcessInfo.processInfo.environment["LEEWAY_RENDER_DIR"] else {
-            throw XCTSkip("set LEEWAY_RENDER_DIR to render row previews")
+        guard let dir = ProcessInfo.processInfo.environment["AISTATUSBAR_RENDER_DIR"] else {
+            throw XCTSkip("set AISTATUSBAR_RENDER_DIR to render row previews")
         }
         try FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
         NSApplication.shared.appearance = NSAppearance(named: .darkAqua)   // рендер в тёмной теме

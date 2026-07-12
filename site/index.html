@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Leeway — Claude Code &amp; Codex usage limits in your Mac menu bar</title>
-<meta name="description" content="Leeway is a tiny macOS menu-bar app that shows your Claude Code and Codex usage limits live — the 5-hour window and the weekly cap, for every account you run. Know there's headroom before you fire the big job, and see exactly when the wall resets. Free, open source, notarized by Apple." />
+<title>AI Status Bar — Claude Code &amp; Codex usage limits in your Mac menu bar</title>
+<meta name="description" content="AI Status Bar is a tiny macOS menu-bar app that shows your Claude Code and Codex usage limits live — the 5-hour window and the weekly cap, for every account you run. Know there's headroom before you fire the big job, and see exactly when the wall resets. Free, open source, notarized by Apple." />
 <meta name="keywords" content="claude code usage limit, claude code rate limit tracker, claude 5 hour window, claude weekly limit, codex usage limit, chatgpt codex quota, anthropic usage monitor menu bar, claude max limits, ai coding agent limits mac" />
 <meta name="author" content="NORM — app@ykv.lv" />
-<link rel="canonical" href="https://leeway.ykv.lv/" />
-<meta property="og:title" content="Leeway — your AI limits, always in sight" />
+<link rel="canonical" href="https://aistatusbar.ykv.lv/" />
+<meta property="og:title" content="AI Status Bar — your AI limits, always in sight" />
 <meta property="og:description" content="Claude Code &amp; Codex usage across every account — live gauges in the macOS menu bar. 5-hour window, weekly cap, reset times. Free &amp; open source, notarized by Apple." />
-<meta property="og:image" content="https://leeway.ykv.lv/assets/og.png" />
+<meta property="og:image" content="https://aistatusbar.ykv.lv/assets/og.png" />
 <meta property="og:image:width" content="1280" />
 <meta property="og:image:height" content="640" />
-<meta property="og:url" content="https://leeway.ykv.lv/" />
+<meta property="og:url" content="https://aistatusbar.ykv.lv/" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Leeway — Claude Code &amp; Codex limits in your menu bar" />
+<meta name="twitter:title" content="AI Status Bar — Claude Code &amp; Codex limits in your menu bar" />
 <meta name="twitter:description" content="Live usage gauges for every Claude Code and Codex account — 5-hour window, weekly cap, reset times. Free &amp; open source." />
-<meta name="twitter:image" content="https://leeway.ykv.lv/assets/og.png" />
+<meta name="twitter:image" content="https://aistatusbar.ykv.lv/assets/og.png" />
 <meta name="theme-color" content="#eef0f3" />
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
@@ -33,14 +33,14 @@
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "Leeway",
+  "name": "AI Status Bar",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "macOS 13 Ventura or later",
   "softwareVersion": "0.1",
   "description": "A tiny macOS menu-bar app that shows Claude Code and Codex usage limits live — the 5-hour window and the weekly cap for every account, with reset times. Built for developers running AI coding agents on subscription plans.",
-  "url": "https://leeway.ykv.lv/",
-  "downloadUrl": "https://github.com/sshykvlv/leeway/releases/latest",
-  "softwareHelp": "https://github.com/sshykvlv/leeway",
+  "url": "https://aistatusbar.ykv.lv/",
+  "downloadUrl": "https://github.com/sshykvlv/ai-status-bar/releases/latest",
+  "softwareHelp": "https://github.com/sshykvlv/ai-status-bar",
   "license": "https://opensource.org/license/mit",
   "featureList": [
     "Live 5-hour and weekly usage gauges for Claude Code and Codex",
@@ -72,12 +72,12 @@
     {
       "@type": "Question",
       "name": "Can I watch several Claude accounts at once?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes — that is the point. Leeway picks up your main Claude Code login automatically and lets you add more accounts through the normal Claude OAuth flow. Each account gets its own row and its own gauges, and you can rename rows freely." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — that is the point. AI Status Bar picks up your main Claude Code login automatically and lets you add more accounts through the normal Claude OAuth flow. Each account gets its own row and its own gauges, and you can rename rows freely." }
     },
     {
       "@type": "Question",
       "name": "Are my tokens safe?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Tokens are stored in the macOS Keychain, never in plain files. Leeway talks only to the official Anthropic and OpenAI endpoints, and every line of it is open source on GitHub." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Tokens are stored in the macOS Keychain, never in plain files. AI Status Bar talks only to the official Anthropic and OpenAI endpoints, and every line of it is open source on GitHub." }
     },
     {
       "@type": "Question",
@@ -86,7 +86,7 @@
     },
     {
       "@type": "Question",
-      "name": "Is Leeway free?",
+      "name": "Is AI Status Bar free?",
       "acceptedAnswer": { "@type": "Answer", "text": "The direct download is free and open source under the MIT license, forever. A paid Mac App Store convenience build of the same app is coming for people who prefer the Store. There is an optional tip jar as well." }
     }
   ]
@@ -108,20 +108,20 @@
 <header class="nav">
   <a class="brand" href="/">
     <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
-    <span class="brand-text">Lee<span class="brand-accent">way</span></span>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
   </a>
-  <a class="nav-buy" href="#get">Get Leeway · free</a>
+  <a class="nav-buy" href="#get">Get AI Status Bar · free</a>
 </header>
 
 <main>
   <!-- HERO -->
   <section class="hero">
     <div class="glow" aria-hidden="true"></div>
-    <img class="hero-icon" src="/assets/icon.png" alt="Leeway app icon" width="160" height="160" />
+    <img class="hero-icon" src="/assets/icon.png" alt="AI Status Bar app icon" width="160" height="160" />
     <h1>Your AI limits,<br /><em>always in sight.</em></h1>
-    <p class="lede">Claude Code and Codex enforce a 5-hour window and a weekly cap — and tell you about it mid-task. Leeway puts every account's live gauges in the macOS menu bar: see the headroom before you fire the big job, and exactly when the wall resets. No dashboards, no guessing.</p>
+    <p class="lede">Claude Code and Codex enforce a 5-hour window and a weekly cap — and tell you about it mid-task. AI Status Bar puts every account's live gauges in the macOS menu bar: see the headroom before you fire the big job, and exactly when the wall resets. No dashboards, no guessing.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="https://github.com/sshykvlv/leeway/releases/latest/download/Leeway.zip" data-umami-event="download">Download for macOS</a>
+      <a class="btn btn-primary" href="https://github.com/sshykvlv/ai-status-bar/releases/latest/download/AIStatusBar.zip" data-umami-event="download">Download for macOS</a>
       <span class="trust">Free &amp; open source · notarized by Apple</span>
     </div>
   </section>
@@ -134,7 +134,7 @@
         <span class="mb-highlight"><svg class="mb-bars" aria-hidden="true"><use href="#bars"/></svg></span>
         <span class="mb-clock">Wed 9:41</span>
       </div>
-      <div class="menu" role="menu" aria-label="Leeway menu">
+      <div class="menu" role="menu" aria-label="AI Status Bar menu">
         <div class="acct">
           <div class="acct-id">
             <span class="acct-name">Main</span>
@@ -163,7 +163,7 @@
         <div class="mi"><span class="mi-label">Add Claude Account…</span></div>
         <div class="mi mi-dim"><span class="mi-label">Updated 12s ago</span></div>
         <div class="mi-sep"></div>
-        <div class="mi"><span class="mi-label">Quit Leeway</span><span class="mi-kbd">⌘Q</span></div>
+        <div class="mi"><span class="mi-label">Quit AI Status Bar</span><span class="mi-kbd">⌘Q</span></div>
       </div>
     </div>
     <p class="showcase-cap">Rows are accounts; rings are the 5-hour and weekly windows, each with its exact reset time. Green is headroom, yellow is “wrap it up”, orange <em class="fc">→ 17:30</em> forecasts when you’ll hit the wall at this pace, and when a window runs dry the clock turns red — <em>15:12</em> beats a surprise lockout.</p>
@@ -192,7 +192,7 @@
   <section class="how">
     <h2>Three steps</h2>
     <ol class="steps">
-      <li><span class="num">1</span><div><h4>Open it</h4><p>Drag Leeway to Applications and double-click. Three little bars appear in your menu bar.</p></div></li>
+      <li><span class="num">1</span><div><h4>Open it</h4><p>Drag AI Status Bar to Applications and double-click. Three little bars appear in your menu bar.</p></div></li>
       <li><span class="num">2</span><div><h4>It finds your logins</h4><p>Your Claude Code session and local Codex login are picked up automatically. Add more Claude accounts from the menu — a normal OAuth window, tokens go straight to the Keychain.</p></div></li>
       <li><span class="num">3</span><div><h4>Glance up</h4><p>Green means go. Yellow means wrap it up. Red shows when the window refreshes — switch accounts or take the walk you owed yourself.</p></div></li>
     </ol>
@@ -205,9 +205,9 @@
       <p class="price"><svg class="price-mark" aria-hidden="true"><use href="#bars"/></svg>Free</p>
       <p class="price-sub">Open source. Yours forever.</p>
       <span class="spacer"></span>
-      <a class="btn btn-primary" href="https://github.com/sshykvlv/leeway/releases/latest/download/Leeway.zip" data-umami-event="download">Download for macOS</a>
+      <a class="btn btn-primary" href="https://github.com/sshykvlv/ai-status-bar/releases/latest/download/AIStatusBar.zip" data-umami-event="download">Download for macOS</a>
       <p class="price-meta">Apple Silicon &amp; Intel · macOS 13+ · notarized · picks up your CLI logins automatically</p>
-      <a class="btn btn-ghost btn-gh" href="https://github.com/sshykvlv/leeway" data-umami-event="github"><svg class="gh-mark" aria-hidden="true"><use href="#gh"/></svg>View on GitHub</a>
+      <a class="btn btn-ghost btn-gh" href="https://github.com/sshykvlv/ai-status-bar" data-umami-event="github"><svg class="gh-mark" aria-hidden="true"><use href="#gh"/></svg>View on GitHub</a>
     </div>
     <div class="price-card">
       <span class="price-badge">Mac App Store</span>
@@ -233,18 +233,18 @@
       </details>
       <details>
         <summary>Can I watch several Claude accounts at once?</summary>
-        <p>Yes — that’s the point. Leeway picks up your main Claude Code login automatically and lets you add more accounts through the normal Claude OAuth flow. Each account gets its own row and its own gauges, and you can rename rows freely.</p>
+        <p>Yes — that’s the point. AI Status Bar picks up your main Claude Code login automatically and lets you add more accounts through the normal Claude OAuth flow. Each account gets its own row and its own gauges, and you can rename rows freely.</p>
       </details>
       <details>
         <summary>Are my tokens safe?</summary>
-        <p>Tokens live in the macOS Keychain, never in plain files. Leeway talks only to the official Anthropic and OpenAI endpoints, and every line of it is open source on GitHub.</p>
+        <p>Tokens live in the macOS Keychain, never in plain files. AI Status Bar talks only to the official Anthropic and OpenAI endpoints, and every line of it is open source on GitHub.</p>
       </details>
       <details>
         <summary>What’s the difference between the free and the App Store version?</summary>
         <p>The gauges are identical. The free direct download can pick up your existing CLI logins automatically — the App Store sandbox doesn’t allow that, so the Store build asks you to sign in to Claude once (normal OAuth) and to point it at your Codex folder. In exchange you get one-click install and automatic updates through the Store. Pick whichever fits you; the direct build stays free and open source either way.</p>
       </details>
       <details>
-        <summary>Is Leeway really free?</summary>
+        <summary>Is AI Status Bar really free?</summary>
         <p>The direct download is — free and open source under the MIT license, forever. The upcoming Mac App Store version is a paid convenience build of the same app, for people who prefer installing and updating through the Store. There’s also an optional tip jar if the free build saves you from a mid-task lockout.</p>
       </details>
     </div>
@@ -252,7 +252,7 @@
 
   <!-- TIP -->
   <section class="tipbar">
-    <p class="tip-pitch">Leeway is free and open source. If it saved your evening run from a surprise lockout, a coffee keeps it going.</p>
+    <p class="tip-pitch">AI Status Bar is free and open source. If it saved your evening run from a surprise lockout, a coffee keeps it going.</p>
     <a class="btn btn-ghost" href="https://buy.stripe.com/5kQ14ogr4dq9fky4Mm0Jq02" data-umami-event="tip">Pay what you want — leave a tip</a>
   </section>
 </main>
@@ -260,10 +260,10 @@
 <footer class="footer">
   <a class="brand brand-sm" href="/">
     <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
-    <span class="brand-text">Lee<span class="brand-accent">way</span></span>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
   </a>
   <span class="footer-links">
-    <a href="https://github.com/sshykvlv/leeway" data-umami-event="github">GitHub</a>
+    <a href="https://github.com/sshykvlv/ai-status-bar" data-umami-event="github">GitHub</a>
     <a href="https://lidless.ykv.lv/">Lidless — its sibling</a>
     <a href="mailto:app@ykv.lv">app@ykv.lv</a>
   </span>

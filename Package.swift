@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "Leeway",
+    name: "AIStatusBar",
     platforms: [.macOS(.v14)],
     targets: [
-        .executableTarget(name: "Leeway", path: "Sources/Leeway"),
-        .testTarget(name: "LeewayTests", dependencies: ["Leeway"],
-                    path: "Tests/LeewayTests",
+        .executableTarget(name: "AIStatusBar", path: "Sources/AIStatusBar"),
+        .testTarget(name: "AIStatusBarTests", dependencies: ["AIStatusBar"],
+                    path: "Tests/AIStatusBarTests",
                     resources: [.copy("Fixtures")]),
     ]
 )

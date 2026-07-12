@@ -2,20 +2,20 @@
 # Signs Developer ID + notarizes + staples + packages a zip for release.
 # Requires: a "Developer ID Application" certificate in your keychain, and a
 # notarytool keychain profile. One-time setup:
-#   xcrun notarytool store-credentials leeway-notary \
+#   xcrun notarytool store-credentials aistatusbar-notary \
 #       --apple-id YOU@APPLEID --team-id TEAMID --password xxxx-xxxx-xxxx-xxxx
 #
 # Usage: ./release.sh [version] [profile]
 #   version  optional — if given, bumps CFBundleShortVersionString in Info.plist
 #            before building (e.g. ./release.sh 0.2.0)
-#   profile  optional — notarytool keychain profile name (default: leeway-notary)
+#   profile  optional — notarytool keychain profile name (default: aistatusbar-notary)
 set -euo pipefail
 cd "$(dirname "$0")"
 
 VERSION="${1:-}"
-PROFILE="${2:-leeway-notary}"
-APP="Leeway.app"
-OUT="$HOME/Downloads/Leeway.zip"
+PROFILE="${2:-aistatusbar-notary}"
+APP="AIStatusBar.app"
+OUT="$HOME/Downloads/AIStatusBar.zip"
 
 # 0) optional version bump
 if [ -n "$VERSION" ]; then
@@ -43,7 +43,7 @@ codesign --force --options runtime --timestamp \
 codesign --verify --strict --verbose=2 "build/$APP"
 
 # 4) notarize (zip → submit → wait)
-ZIP_TMP="$(mktemp -d)/Leeway.zip"
+ZIP_TMP="$(mktemp -d)/AIStatusBar.zip"
 ditto -c -k --keepParent "build/$APP" "$ZIP_TMP"
 echo "📤 Submitting for notarization (profile: $PROFILE)…"
 xcrun notarytool submit "$ZIP_TMP" --keychain-profile "$PROFILE" --wait

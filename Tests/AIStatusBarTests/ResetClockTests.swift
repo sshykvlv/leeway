@@ -1,5 +1,5 @@
 import XCTest
-@testable import Leeway
+@testable import AIStatusBar
 
 /// ResetClock — абсолютное время сброса в строке меню (фидбэк владельца 11.07:
 /// «во сколько сбросится» полезнее, чем «через сколько», и должно быть видно всегда).

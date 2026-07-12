@@ -1,17 +1,17 @@
-# Leeway
+# AI Status Bar
 
 A menu bar app that shows how much usage you have left on multiple Claude accounts and Codex, at a glance.
 
-![Leeway menu](docs/screenshot.png)
+![AI Status Bar menu](docs/screenshot.png)
 <!-- TODO: add a real screenshot -->
 
 ## Install
 
 ```
-brew install --cask sshykvlv/tap/leeway
+brew install --cask sshykvlv/tap/aistatusbar
 ```
 
-Or download `Leeway.zip` from [Releases](https://github.com/sshykvlv/leeway/releases) and unzip it to `/Applications`.
+Or download `AIStatusBar.zip` from [Releases](https://github.com/sshykvlv/ai-status-bar/releases) and unzip it to `/Applications`.
 
 ## Usage
 

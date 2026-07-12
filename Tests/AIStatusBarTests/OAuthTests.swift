@@ -1,5 +1,5 @@
 import XCTest
-@testable import Leeway
+@testable import AIStatusBar
 
 final class OAuthTests: XCTestCase {
     func testPKCEPairIsValid() {

@@ -1,5 +1,5 @@
 import XCTest
-@testable import Leeway
+@testable import AIStatusBar
 
 final class ParserTests: XCTestCase {
     func fixture(_ name: String) throws -> Data {

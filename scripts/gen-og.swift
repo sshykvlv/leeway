@@ -37,7 +37,7 @@ let wordAttrs: [NSAttributedString.Key: Any] = [
     .foregroundColor: NSColor(srgbRed: 0.95, green: 0.94, blue: 0.93, alpha: 1),
     .kern: -1.5,
 ]
-let word = NSAttributedString(string: "Leeway", attributes: wordAttrs)
+let word = NSAttributedString(string: "AI Status Bar", attributes: wordAttrs)
 let wordSize = word.size()
 
 let glyphGap: CGFloat = 56
