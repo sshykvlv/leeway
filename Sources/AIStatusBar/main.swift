@@ -139,11 +139,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// attributedTitle — иначе autoenablesItems глушит их в один серый и
     /// детали нечитаемы (фидбэк владельца 12.07: «неконтрастно»).
     private func addAccountDetails(_ sub: NSMenu, account: Account) {
+        // Шапка ВСЕГДА начинается с identity аккаунта (фидбэк 12.07: «аккаунт
+        // не во всех моделях виден» — после дедупа email==имя оставалось голое
+        // «Claude Code»). Identity — контрастная, сервис · тариф — вторичным.
+        let identity = AccountRowView.resolvedName(name: account.name, email: account.email)
+        sub.addItem(infoItem(identity, color: .labelColor, semiboldPrefix: identity))
         let service = account.kind == .codex ? "Codex" : "Claude Code"
         sub.addItem(infoItem(account.plan.map { "\(service) · \($0)" } ?? service, color: .secondaryLabelColor))
-        if let email = account.email, !email.isEmpty, email != account.name {
-            sub.addItem(infoItem(email, color: .secondaryLabelColor))
-        }
         sub.addItem(.separator())
 
         switch poller.state(for: account.id) {
@@ -155,23 +157,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             sub.addItem(.separator())
         case .ok(let usage, _), .stale(let usage, _, _):
             addWindowDetails(sub, title: "5-hour window", window: usage.fiveHour)
-            sub.addItem(.separator())
             addWindowDetails(sub, title: "Weekly window", window: usage.sevenDay)
-            sub.addItem(.separator())
             if case .stale(_, _, let badge) = poller.state(for: account.id) {
                 sub.addItem(infoItem("⚠ \(badge)", color: .systemOrange))
-                sub.addItem(.separator())
             }
+            sub.addItem(.separator())
         }
     }
 
+    /// Одно окно = одна строка: «5-hour window — 51% · resets Mo 00:59 (in 1 hour)»
+    /// (название semibold, хвост со сбросом — вторичным). Прогноз — отдельной
+    /// оранжевой строкой сразу под своим окном.
     private func addWindowDetails(_ sub: NSMenu, title: String, window: UsageWindow?) {
         let detail = AccountRowView.windowDetail(title: title, window: window)
-        // Заголовок окна — полноконтрастный, с semibold-названием окна.
-        sub.addItem(infoItem(detail.summary, color: .labelColor, semiboldPrefix: title))
+        let font = NSFont.menuFont(ofSize: 0)
+        let line = NSMutableAttributedString(
+            string: detail.summary,
+            attributes: [.foregroundColor: NSColor.labelColor, .font: font])
+        line.addAttribute(.font, value: NSFont.systemFont(ofSize: font.pointSize, weight: .semibold),
+                          range: NSRange(location: 0, length: title.utf16.count))
         if let reset = detail.reset {
-            sub.addItem(infoItem(reset, color: .secondaryLabelColor))
+            line.append(NSAttributedString(
+                string: " · \(reset)",
+                attributes: [.foregroundColor: NSColor.secondaryLabelColor, .font: font]))
         }
+        let item = NSMenuItem(title: detail.summary, action: nil, keyEquivalent: "")
+        item.attributedTitle = line
+        sub.addItem(item)
         if let forecast = detail.forecast {
             sub.addItem(infoItem(forecast, color: .systemOrange))
         }

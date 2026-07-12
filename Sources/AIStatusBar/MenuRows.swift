@@ -29,26 +29,29 @@ struct AccountRowView: View {
         }
     }
 
-    private var resolvedName: String {
+    /// Дефолтное имя ничего не говорит — показываем email, когда он есть.
+    /// Общая точка для строки меню и шапки сабменю деталей.
+    static func resolvedName(name: String, email: String?) -> String {
         Account.defaultNames.contains(name) ? (email ?? name) : name
     }
+
+    private var resolvedName: String { Self.resolvedName(name: name, email: email) }
 
     // «Claude · Claude» у дефолтного имени без email — дубль: суффикс различает
     // сервисы при одинаковых identity, а тут identity и есть имя сервиса.
     private var showsSuffix: Bool { resolvedName != serviceSuffix }
 
-    /// Строки детализации одного окна для сабменю аккаунта (выбор владельца 12.07:
-    /// детали выпадают вправо сабменю, как Rename/Re-login/Remove, а не системным
-    /// тултипом — тот выглядел чужеродно, да и работал только через NSView.toolTip).
+    /// Детализация одного окна для сабменю аккаунта (выбор владельца 12.07:
+    /// детали выпадают вправо сабменю; одна строка на окно, без пересчётов
+    /// вроде «49% left» — фидбэк «избавимся от лишнего»).
     static func windowDetail(title: String, window: UsageWindow?)
         -> (summary: String, reset: String?, forecast: String?) {
         guard let window else { return ("\(title) — no data", nil, nil) }
-        let used = Int(window.utilization)
-        let summary = "\(title) — \(used)% used · \(100 - used)% left"
+        let summary = "\(title) — \(Int(window.utilization))%"
         var reset: String? = nil
         if let resetsAt = window.resetsAt, let absolute = ResetClock.label(resetsAt) {
             let rel = RelativeDateTimeFormatter(); rel.unitsStyle = .full
-            reset = "Resets \(absolute) (\(rel.localizedString(for: resetsAt, relativeTo: .now)))"
+            reset = "resets \(absolute) (\(rel.localizedString(for: resetsAt, relativeTo: .now)))"
         }
         var forecast: String? = nil
         if let projected = window.projectedExhaustion, let label = ResetClock.label(projected) {

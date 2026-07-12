@@ -43,8 +43,9 @@ enum IconRenderer {
                 let x = 1 + CGFloat(i) * (barW + gap)
                 let track = NSBezierPath(roundedRect: NSRect(x: x, y: y, width: barW, height: barH),
                                          xRadius: barW / 2, yRadius: barW / 2)
-                // Белая подложка столбика (фидбэк владельца 11.07).
-                NSColor(white: 1.0, alpha: 0.5).setFill()
+                // Подложка от labelColor — адаптируется к светлому/тёмному менюбару
+                // (drawingHandler выполняется в appearance кнопки статус-айтема).
+                NSColor.labelColor.withAlphaComponent(0.35).setFill()
                 track.fill()
                 if let used = level.used {
                     let h = used > 0 ? max(barW, barH * used) : 0   // минимум — «точка», 0% — пусто
@@ -62,11 +63,14 @@ enum IconRenderer {
         return img
     }
 
+    // Спокойный бар — нейтральный (фидбэк владельца 12.07: красим только когда
+    // токенов мало) — labelColor, а не белый: адаптируется к светлому менюбару.
+    // Warn — оранжевый, как пороговые цвета в строках меню (был жёлтый).
     private static func fillColor(for severity: Severity) -> NSColor {
         switch severity {
         case .danger: return .systemRed
-        case .warn: return .systemYellow
-        case .normal: return .systemGreen
+        case .warn: return .systemOrange
+        case .normal: return .labelColor
         }
     }
 }
