@@ -49,7 +49,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    func menuWillOpen(_ menu: NSMenu) { poller.pollNow() }
+    // «Щель под Quit» v2 (12.07): полная пересборка меню, пока оно ОТКРЫТО
+    // (poll приходит через menuWillOpen → render), оставляет NSMenu-окну старую
+    // высоту — снизу появляется пустое место. Пока меню открыто, строки
+    // обновляем на месте (rootView того же NSHostingView), а пересборку
+    // откладываем до закрытия.
+    private var menuIsOpen = false
+
+    func menuWillOpen(_ menu: NSMenu) {
+        menuIsOpen = true
+        poller.pollNow()
+    }
+
+    func menuDidClose(_ menu: NSMenu) {
+        menuIsOpen = false
+        rebuildMenu()   // подхватить возможные изменения состава аккаунтов
+    }
 
     private func rebuildMenu() {
         menu.removeAllItems()
@@ -101,10 +116,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func render() {
-        rebuildMenu()
+        if menuIsOpen {
+            refreshRowsInPlace()
+        } else {
+            rebuildMenu()
+        }
         renderIcon()
         let f = DateFormatter(); f.timeStyle = .short
         updatedItem.title = "Updated \(f.string(from: Date()))"
+    }
+
+    /// Обновляет открытое меню без removeAllItems: та же геометрия, свежие данные.
+    private func refreshRowsInPlace() {
+        for item in menu.items {
+            guard let id = item.representedObject as? UUID,
+                  let account = store.accounts.first(where: { $0.id == id }),
+                  let host = item.view as? NSHostingView<AccountRowView> else { continue }
+            host.rootView = AccountRowView(name: account.name, state: poller.state(for: id),
+                                           kind: account.kind, email: account.email, plan: account.plan)
+        }
     }
 
     private func renderIcon() {
