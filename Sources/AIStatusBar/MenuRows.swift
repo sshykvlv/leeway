@@ -123,45 +123,22 @@ struct AccountRowView: View {
         .onHover { hovered = $0 }
     }
 
-    // Дизайн «D2 — только цифры» (выбор владельца 12.07 после листа минимализации):
-    // два процента в колонках (слева всегда 5h, справа 7d) — и всё. Метки окон,
-    // времена сброса и слова живут в тултипах. Исключения ровно два:
-    // исчерпанное окно дописывает время возврата (главный вопрос в этот момент),
-    // оранжевая молния = burn-rate прогноз (цифры выглядят спокойно, а окно
-    // кончится до сброса). Красной молнии нет — исчерпание видно по 100%.
+    // Дизайн «F2 — раздельные плашки» (выбор владельца 12.07, эволюция «D2 — только
+    // цифры»): каждое окно в своей плашке-чипе (слева всегда 5h, справа 7d), по
+    // паттерну капсул Control Center, но со скруглённым прямоугольником — «не
+    // колбаской». Внутри чипа только процент: серый пока спокойно (<70), оранжевый
+    // ≥70, красный ≥90. Исключения ровно два: исчерпанное окно дописывает время
+    // возврата (главный вопрос в этот момент), оранжевая молния = burn-rate прогноз
+    // своего окна (цифры выглядят спокойно, а окно кончится до сброса). Красной
+    // молнии нет — исчерпание видно по 100%. Метки окон, слова и детали — в тултипе.
     @ViewBuilder
     private func windows(usage: Usage?) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 0) {
-            PercentCell(window: usage?.fiveHour, hovered: hovered)
-            PercentCell(window: usage?.sevenDay, hovered: hovered)
-            boltSlot(usage: usage)
+        HStack(spacing: 6) {
+            WindowChip(window: usage?.fiveHour, hovered: hovered)
+            WindowChip(window: usage?.sevenDay, hovered: hovered)
         }
         // Кластер окон не сжимается — при длинной identity усекается она, не цифры.
         .layoutPriority(1)
-    }
-
-    /// Ближайший burn-rate прогноз по неисчерпанным окнам — одна молния на строку.
-    private func earliestForecast(_ usage: Usage?) -> Date? {
-        guard let usage else { return nil }
-        return [usage.fiveHour, usage.sevenDay]
-            .compactMap { $0 }
-            .filter { $0.utilization <= 99 }
-            .compactMap(\.projectedExhaustion)
-            .min()
-    }
-
-    // Слот фиксированной ширины и без молнии: правые края процентов совпадают
-    // между строками независимо от того, у кого горит прогноз.
-    @ViewBuilder
-    private func boltSlot(usage: Usage?) -> some View {
-        Group {
-            if earliestForecast(usage) != nil {
-                Image(systemName: "bolt.fill")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(hovered ? Color.white : Color(nsColor: .systemOrange))
-            }
-        }
-        .frame(width: 16, alignment: .trailing)
     }
 
 }
@@ -184,16 +161,22 @@ enum ResetClock {
     }
 }
 
-/// Колонка-процент одного окна: голая цифра, окрашенная порогом — серая пока
-/// спокойно (<70), оранжевая ≥70, красная ≥90 (semibold + tabular, чтобы
-/// столбцы не плясали). Исчерпанное окно (>99%) — единственное, кому цифры
-/// мало: дописывает время возврата «100% · 13:44». `window == nil` — «—».
-/// minWidth держит колонки ровными между строками при 1–3 значных процентах.
-private struct PercentCell: View {
+/// Плашка-чип одного окна: процент, окрашенный порогом — серый пока спокойно
+/// (<70), оранжевый ≥70, красный ≥90 (semibold + tabular). Исчерпанное окно
+/// (>99%) — единственное, кому цифры мало: дописывает время возврата
+/// «100% · 13:44». Молния слева — burn-rate прогноз этого окна.
+/// `window == nil` — «—». Форма — скруглённый прямоугольник (не капсула),
+/// заливка quaternary — как системные чипы.
+private struct WindowChip: View {
     let window: UsageWindow?
     var hovered: Bool = false
 
     private var exhausted: Bool { (window?.utilization ?? 0) > 99 }
+
+    private var forecast: Bool {
+        guard let window else { return false }
+        return window.utilization <= 99 && window.projectedExhaustion != nil
+    }
 
     private var percentColor: Color {
         if hovered { return .white }
@@ -209,17 +192,29 @@ private struct PercentCell: View {
     }
 
     var body: some View {
-        (Text(window.map { "\(Int($0.utilization))%" } ?? "—")
-            .font(.system(size: 11, weight: .semibold))
-            .foregroundColor(percentColor)
-         + Text(resetSuffix)
-            .font(.system(size: 11))
-            // На выделенной (синей) строке серые тексты теряют контраст — в белый.
-            .foregroundColor(hovered ? .white.opacity(0.85) : Color(nsColor: .secondaryLabelColor)))
-            .monospacedDigit()
-            .lineLimit(1)
-            .fixedSize()
-            .frame(minWidth: 44, alignment: .trailing)
+        HStack(spacing: 4) {
+            if forecast {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 8.5, weight: .semibold))
+                    .foregroundStyle(hovered ? Color.white : Color(nsColor: .systemOrange))
+            }
+            (Text(window.map { "\(Int($0.utilization))%" } ?? "—")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(percentColor)
+             + Text(resetSuffix)
+                .font(.system(size: 11))
+                // На выделенной (синей) строке серые тексты теряют контраст — в белый.
+                .foregroundColor(hovered ? .white.opacity(0.85) : Color(nsColor: .secondaryLabelColor)))
+                .monospacedDigit()
+                .lineLimit(1)
+                .fixedSize()
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 2.5)
+        .background(
+            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                .fill(hovered ? Color.white.opacity(0.18) : Color(nsColor: .quaternaryLabelColor))
+        )
     }
 }
 
