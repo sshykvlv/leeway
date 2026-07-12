@@ -8,15 +8,34 @@ struct AccountRowView: View {
     var email: String? = nil
     var plan: String? = nil
 
-    // Иконок/плашек в строке нет (решение 2026-07-11): аккаунт — первой строкой
-    // (главный сканируемый признак при нескольких аккаунтах одного сервиса),
-    // сервис — второй, нейтральным цветом. Email уходит в hover-тултип.
+    @State private var hovered = false
+
+    // Дизайн «V2-B» (выбор владельца 12.07): одна строка, identity = email вместо
+    // generic-имени (та же fallback-логика, что в тултипе менюбара), суффикс сервиса
+    // обязателен — один email может быть и на Claude, и на Codex. Кольца убраны
+    // (на 16pt дуга не читается) — окна показаны текстом, единственный цветной
+    // акцент — процент. Полные слова («resets», тариф) — только в тултипах.
+    private var serviceSuffix: String {
+        switch kind {
+        case .claudeMain, .claudeOAuth: return "Claude"
+        case .codex: return "Codex"
+        }
+    }
+
     private var serviceLabel: String {
         switch kind {
         case .claudeMain, .claudeOAuth: return "Claude Code"
         case .codex: return "Codex"
         }
     }
+
+    private var resolvedName: String {
+        Account.defaultNames.contains(name) ? (email ?? name) : name
+    }
+
+    // «Claude · Claude» у дефолтного имени без email — дубль: суффикс различает
+    // сервисы при одинаковых identity, а тут identity и есть имя сервиса.
+    private var showsSuffix: Bool { resolvedName != serviceSuffix }
 
     private var identityHelp: String {
         var lines = [name, serviceLabel]
@@ -25,52 +44,40 @@ struct AccountRowView: View {
         return lines.joined(separator: "\n")
     }
 
-    @State private var hovered = false
-
     var body: some View {
-        HStack(alignment: .center, spacing: 0) {
-            // Отрицательный зазор — фидбэк владельца 11.07: строка сервиса
-            // должна сидеть вплотную к имени аккаунта.
-            VStack(alignment: .leading, spacing: -2) {
-                HStack(spacing: 4) {
-                    Text(name)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(hovered ? Color.white : Color.primary)
-                        .lineLimit(1)
-                    // Stale-бейдж живёт у имени, а не справа от гейджей: там он
-                    // отъедал ширину у времени сброса и оно обрезалось.
-                    if case .stale(_, _, let badge) = state {
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.system(size: 10)).foregroundStyle(.orange)
-                            .help(badge)
-                    }
-                }
-                // Нейтральный вторичный текст (по гайдлайнам macOS), а не брендовый цвет:
-                // сервис читается словом, смысловой цвет несут бары. На выделении — белый.
-                Text(plan.map { "\(serviceLabel) · \($0)" } ?? serviceLabel)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(hovered ? Color.white.opacity(0.85) : Color(nsColor: .secondaryLabelColor))
-                    .lineLimit(1)
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            (Text(resolvedName)
+                .font(.system(size: 12.5, weight: .medium))
+                .foregroundColor(hovered ? Color.white : Color.primary)
+             + Text(showsSuffix ? " · \(serviceSuffix)" : "")
+                .font(.system(size: 11))
+                .foregroundColor(hovered ? Color.white.opacity(0.85) : Color(nsColor: .secondaryLabelColor)))
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .help(identityHelp)
+            if case .stale(_, _, let badge) = state {
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 10)).foregroundStyle(.orange)
+                    .help(badge)
             }
-            .help(identityHelp)
-            // Имя гибкое, гейджи прижаты к правому краю: их фиксированная ширина
-            // выравнивает кольца в столбцы между строками (вариант C).
+            // Identity гибкая, сегменты окон прижаты вправо: фиксированная ширина
+            // выравнивает проценты и времена в столбцы между строками.
             Spacer(minLength: 12)
             switch state {
             case .pending:
-                gauges(usage: nil)
+                windows(usage: nil)
             case .failed(let badge):
                 Label(badge, systemImage: "exclamationmark.triangle")
                     .font(.system(size: 11)).foregroundStyle(.orange)
             case .ok(let usage, _), .stale(let usage, _, _):
-                gauges(usage: usage)
+                windows(usage: usage)
             }
         }
         .padding(.horizontal, 12)
         .frame(width: MenuRowFactory.rowWidth, height: MenuRowFactory.rowHeight, alignment: .leading)
-        // Нативная подсветка выделения (фидбэк владельца 11.07): кастомные view-строки
-        // NSMenu сам не подсвечивает — рисуем акцентный rounded-rect с инсетом 5pt,
-        // как у системных пунктов; цвет — системный selection (следует за акцентом юзера).
+        // Нативная подсветка выделения: кастомные view-строки NSMenu сам не
+        // подсвечивает — рисуем акцентный rounded-rect с инсетом 5pt, как у
+        // системных пунктов; цвет — системный selection (следует за акцентом юзера).
         .background(
             RoundedRectangle(cornerRadius: 5, style: .continuous)
                 .fill(Color(nsColor: .selectedContentBackgroundColor))
@@ -80,16 +87,12 @@ struct AccountRowView: View {
         .onHover { hovered = $0 }
     }
 
-    // Кольца вернулись (фидбэк владельца 11.07: «выглядели хорошо, я бы их не убирал»),
-    // но подпись переехала вбок: рядом с каждым кольцом — окно («5h»/«7d») и всегда
-    // видимое абсолютное время сброса («когда», а не «через сколько»). Так строка
-    // ниже и воздушнее, чем с подписью под кольцом.
     @ViewBuilder
-    private func gauges(usage: Usage?) -> some View {
-        HStack(spacing: 10) {
-            RingGauge(label: "5h", window: usage?.fiveHour, hovered: hovered)
+    private func windows(usage: Usage?) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            WindowSegment(label: "5h", window: usage?.fiveHour, hovered: hovered)
                 .help(resetHelp(title: "5-hour window", window: usage?.fiveHour))
-            RingGauge(label: "7d", window: usage?.sevenDay, hovered: hovered)
+            WindowSegment(label: "7d", window: usage?.sevenDay, hovered: hovered)
                 .help(resetHelp(title: "Weekly window", window: usage?.sevenDay))
         }
     }
@@ -111,9 +114,9 @@ struct AccountRowView: View {
     }
 }
 
-/// Абсолютное время сброса окна: сегодня — «19:00», иначе — «Tue 09:00»
-/// (локале-зависимые форматы). Владелец 11.07: конкретное время полезнее,
-/// чем «через сколько часов», — показываем его всегда, не только в тултипе.
+/// Абсолютное время сброса окна: сегодня — «19:00», иначе — «Tu 09:00»
+/// (двухбуквенный день, локале-зависимые форматы). Владелец 11.07: конкретное
+/// время полезнее, чем «через сколько часов», — показываем его всегда.
 enum ResetClock {
     static func label(_ date: Date?, now: Date = .now, calendar: Calendar = .current) -> String? {
         guard let date else { return nil }
@@ -123,99 +126,77 @@ enum ResetClock {
         if calendar.isDate(date, inSameDayAs: now) {
             f.setLocalizedDateFormatFromTemplate("jm")
         } else {
-            f.setLocalizedDateFormatFromTemplate("EEE jm")
+            f.setLocalizedDateFormatFromTemplate("EEEEEE jm")
         }
         return f.string(from: date)
     }
 }
 
-/// Кольцо-гейдж (процент внутри, дуга с круглыми капами — заполнение заканчивается
-/// закруглением, не рубленым краем) + подпись ОДНОЙ строкой: «5h · 19:04»
-/// (вариант C, выбор владельца 11.07 — компактно и тихо). В слоте времени
-/// приоритет: исчерпано (>99%) → красное время сброса; есть burn-rate прогноз →
-/// оранжевое «→ 15:40»; иначе обычное время сброса. Полная детализация — в тултипе.
-/// `window == nil` — нет данных: пустой трек, «—» внутри.
-private struct RingGauge: View {
+/// Текстовый сегмент окна: «5h 62% · 19:04». Метка окна — тихая (tertiary),
+/// процент — единственный цветной акцент строки (≥90 красный, ≥70 оранжевый,
+/// иначе зелёный; semibold + tabular, чтобы столбцы не плясали). Время голое —
+/// позиция после процента сама объясняет, что это сброс; burn-rate прогноз
+/// вытесняет его оранжевым «full 17:30» (умрёт раньше, чем сбросится).
+/// `window == nil` — нет данных: «5h —».
+private struct WindowSegment: View {
     let label: String
     let window: UsageWindow?
     var hovered: Bool = false
 
-    private static let diameter: CGFloat = 16
-    private static let lineWidth: CGFloat = 2
+    private static let width: CGFloat = 112
 
-    private var fraction: Double {
-        guard let window else { return 0 }
-        return min(max(window.utilization / 100, 0), 1)
-    }
-    private var exhausted: Bool { (window?.utilization ?? 0) > 99 }
-
-    private var ringColor: Color {
+    private var percentColor: Color {
+        if hovered { return .white }
         let util = window?.utilization ?? 0
-        if util > 90 { return Color(nsColor: .systemRed) }
-        if util > 70 { return Color(nsColor: .systemYellow) }
+        if util >= 90 { return Color(nsColor: .systemRed) }
+        if util >= 70 { return Color(nsColor: .systemOrange) }
         return Color(nsColor: .systemGreen)
     }
 
-    // На выделенной (синей) строке серые/тёмные элементы теряют контраст —
-    // на hover подкручиваем текст и трек под светлый фон.
+    // На выделенной (синей) строке серые/цветные элементы теряют контраст —
+    // на hover весь сегмент уходит в белый разной плотности.
     private var labelColor: Color { hovered ? .white.opacity(0.75) : Color(nsColor: .tertiaryLabelColor) }
-    private var numberColor: Color { hovered ? .white : .primary }
-    private var trackColor: Color { hovered ? .white.opacity(0.3) : Color(nsColor: .quaternaryLabelColor) }
 
-    // Слот времени один (одна строка подписи): прогноз исчерпания вытесняет
-    // обычное время сброса («→ 15:40», оранжевый — умрёт раньше, чем сбросится),
-    // а исчерпание вытесняет всё (красное время возврата). Детали — в тултипе.
+    private var projected: Bool {
+        guard let window else { return false }
+        return window.utilization <= 99 && window.projectedExhaustion != nil
+    }
+
     private var timeText: String {
         guard let window else { return "" }
-        if !exhausted, let projected = window.projectedExhaustion,
-           let time = ResetClock.label(projected) {
-            return "→ \(time)"
+        if projected, let time = ResetClock.label(window.projectedExhaustion) {
+            return "full \(time)"
         }
         return ResetClock.label(window.resetsAt) ?? ""
     }
+
     private var timeColor: Color {
-        if hovered { return .white.opacity(exhausted ? 1 : 0.85) }
-        if exhausted { return Color(nsColor: .systemRed) }
-        if window?.projectedExhaustion != nil { return Color(nsColor: .systemOrange) }
+        if hovered { return .white.opacity(0.85) }
+        if projected { return Color(nsColor: .systemOrange) }
         return Color(nsColor: .secondaryLabelColor)
     }
 
     var body: some View {
-        HStack(spacing: 6) {
-            ZStack {
-                Circle()
-                    .stroke(trackColor, lineWidth: Self.lineWidth)
-                if window != nil, fraction > 0 {
-                    Circle()
-                        .trim(from: 0, to: fraction)
-                        .stroke(ringColor, style: StrokeStyle(lineWidth: Self.lineWidth, lineCap: .round))
-                        .rotationEffect(.degrees(-90))
-                }
-                Text(window.map { "\(Int($0.utilization))" } ?? "—")
-                    .font(.system(size: 7.5, weight: .medium))
-                    .monospacedDigit()
-                    .foregroundStyle(numberColor)
-            }
-            .frame(width: Self.diameter, height: Self.diameter)
-            (Text(label)
-                .font(.system(size: 9, weight: .semibold))
-                .foregroundColor(labelColor)
-             + Text(window == nil ? "" : " · \(timeText)")
-                .font(.system(size: 9.5, weight: exhausted ? .semibold : .regular))
-                .foregroundColor(timeColor))
-                .monospacedDigit()
-                .lineLimit(1)
-                .frame(width: 76, alignment: .leading)
-        }
+        (Text(label)
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundColor(labelColor)
+         + Text(window.map { " \(Int($0.utilization))%" } ?? " —")
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundColor(window == nil ? labelColor : percentColor)
+         + Text(timeText.isEmpty ? "" : " · \(timeText)")
+            .font(.system(size: 11))
+            .foregroundColor(timeColor))
+            .monospacedDigit()
+            .lineLimit(1)
+            .frame(width: Self.width, alignment: .leading)
     }
 }
 
 enum MenuRowFactory {
-    static let rowWidth: CGFloat = 372
-    // Height budget: кольцо 16pt и одна строка подписи; лимитирует текст-колонка
-    // имени (13pt + 10pt, зазор −2) ≈ 22pt; по ~2pt воздуха → 26pt (вариант C,
-    // выбор владельца 11.07 из четырёх степеней компактности).
-    static let rowHeight: CGFloat = 26
+    static let rowWidth: CGFloat = 400
+    // Одна текстовая строка 12.5pt + по ~5pt воздуха сверху/снизу (V2-B,
+    // выбор владельца 12.07 — ниже и плотнее двухстрочного варианта).
+    static let rowHeight: CGFloat = 25
 
     static func item(for account: Account, state: AccountState) -> NSMenuItem {
         let item = NSMenuItem()

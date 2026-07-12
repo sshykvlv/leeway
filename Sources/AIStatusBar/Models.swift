@@ -28,6 +28,11 @@ struct Account: Codable, Equatable, Identifiable {
     /// Для дополнительных Codex-аккаунтов — путь к их CODEX_HOME (папке с auth.json).
     /// nil = основной автоподхваченный Codex (использует ~/.codex по умолчанию).
     var codexHome: String? = nil
+
+    /// Names an owner never customized, used as a fallback signal that a row's
+    /// email (once fetched) is more informative than its generic default name.
+    /// Shared by the menubar tooltip and the menu rows.
+    static let defaultNames: Set<String> = ["Claude", "Codex", "Claude 2"]
 }
 
 enum AccountState: Equatable {

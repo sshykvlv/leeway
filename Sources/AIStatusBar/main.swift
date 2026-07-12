@@ -144,10 +144,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem.button?.toolTip = tooltip()
     }
 
-    /// Names an owner never customized, used as a fallback signal that a row's
-    /// email (once fetched) is more informative than its generic default name.
-    private static let defaultAccountNames: Set<String> = ["Claude", "Codex", "Claude 2"]
-
     private func tooltip() -> String {
         let parts = store.accounts.compactMap { account -> String? in
             let pct: Int
@@ -155,7 +151,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             case .ok(let usage, _), .stale(let usage, _, _): pct = Int(usage.worstUtilization)
             case .failed, .pending: return nil   // skip accounts with no data
             }
-            let label = (Self.defaultAccountNames.contains(account.name) ? account.email : nil) ?? account.name
+            let label = (Account.defaultNames.contains(account.name) ? account.email : nil) ?? account.name
             return "\(label) \(pct)%"
         }
         return parts.joined(separator: " · ")

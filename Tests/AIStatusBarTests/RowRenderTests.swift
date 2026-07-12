@@ -19,7 +19,8 @@ final class RowRenderTests: XCTestCase {
             fiveHour: UsageWindow(utilization: 100, resetsAt: now.addingTimeInterval(82 * 60)),
             sevenDay: UsageWindow(utilization: 87, resetsAt: now.addingTimeInterval(2.6 * 86400)))
         let working = Usage(
-            fiveHour: UsageWindow(utilization: 42, resetsAt: now.addingTimeInterval(3.2 * 3600)),
+            fiveHour: UsageWindow(utilization: 42, resetsAt: now.addingTimeInterval(3.2 * 3600),
+                                   projectedExhaustion: now.addingTimeInterval(2 * 3600)),
             sevenDay: UsageWindow(utilization: 18, resetsAt: now.addingTimeInterval(4.8 * 86400)))
         let calm = Usage(
             fiveHour: UsageWindow(utilization: 8, resetsAt: now.addingTimeInterval(4.6 * 3600)),
@@ -36,16 +37,23 @@ final class RowRenderTests: XCTestCase {
                                        kind: .claudeOAuth, plan: "Max 20x")),
             ("5-pending", AccountRowView(name: "Claude", state: .pending, kind: .claudeMain)),
             ("6-failed", AccountRowView(name: "Codex", state: .failed(badge: "run codex login"), kind: .codex)),
+            // Дефолтное имя + известный email → в identity показывается email (V2-B).
+            ("7-default-name-email", AccountRowView(name: "Claude", state: .ok(calm, fetchedAt: now),
+                                                    kind: .claudeOAuth, email: "sasha.yakovlev@gmail.com", plan: "Max 20x")),
         ]
+        // Рендер через NSHostingView + cacheDisplay, как в реальном меню:
+        // ImageRenderer теряет текст с динамическими NSColor-label-цветами
+        // (secondary/tertiary) — сегменты просто не рисуются.
         for (name, row) in rows {
-            let renderer = ImageRenderer(content: row.frame(width: MenuRowFactory.rowWidth,
-                                                            height: MenuRowFactory.rowHeight)
-                                             .environment(\.colorScheme, .dark))
-            renderer.scale = 2
-            guard let img = renderer.nsImage, let tiff = img.tiffRepresentation,
-                  let rep = NSBitmapImageRep(data: tiff),
-                  let png = rep.representation(using: .png, properties: [:]) else {
+            let host = NSHostingView(rootView: row)
+            host.frame = NSRect(x: 0, y: 0, width: MenuRowFactory.rowWidth, height: MenuRowFactory.rowHeight)
+            host.appearance = NSAppearance(named: .darkAqua)
+            guard let rep = host.bitmapImageRepForCachingDisplay(in: host.bounds) else {
                 XCTFail("render failed for \(name)"); continue
+            }
+            host.cacheDisplay(in: host.bounds, to: rep)
+            guard let png = rep.representation(using: .png, properties: [:]) else {
+                XCTFail("png failed for \(name)"); continue
             }
             try png.write(to: URL(fileURLWithPath: "\(dir)/\(name).png"))
         }
