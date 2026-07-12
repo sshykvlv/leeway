@@ -37,50 +37,24 @@ struct AccountRowView: View {
     // сервисы при одинаковых identity, а тут identity и есть имя сервиса.
     private var showsSuffix: Bool { resolvedName != serviceSuffix }
 
-    /// Полный тултип пункта меню. NSMenu во время трекинга подавляет view-тултипы
-    /// (SwiftUI .help / NSView.toolTip) — работает только NSMenuItem.toolTip,
-    /// поэтому вся детализация собирается одной простынёй на строку.
-    static func toolTip(name: String, state: AccountState, kind: AccountKind,
-                        email: String?, plan: String?) -> String {
-        let serviceLabel: String
-        switch kind {
-        case .claudeMain, .claudeOAuth: serviceLabel = "Claude Code"
-        case .codex: serviceLabel = "Codex"
-        }
-        var head = [name, serviceLabel]
-        if let plan, !plan.isEmpty { head[1] += " · \(plan)" }
-        // Аккаунт, названный своим email-ом, не дублируем третьей строкой.
-        if let email, !email.isEmpty, email != name { head.append(email) }
-        var blocks = [head.joined(separator: "\n")]
-        switch state {
-        case .pending:
-            blocks.append("Loading…")
-        case .failed(let badge):
-            blocks.append(badge)
-        case .ok(let usage, _):
-            blocks.append(windowHelp(title: "5-hour window", window: usage.fiveHour))
-            blocks.append(windowHelp(title: "Weekly window", window: usage.sevenDay))
-        case .stale(let usage, _, let badge):
-            blocks.append(windowHelp(title: "5-hour window", window: usage.fiveHour))
-            blocks.append(windowHelp(title: "Weekly window", window: usage.sevenDay))
-            blocks.append("⚠ \(badge)")
-        }
-        return blocks.joined(separator: "\n\n")
-    }
-
-    /// Блок одного окна: "<title>\n<used>% used · <left>% left\nResets <abs> (<rel>)".
-    private static func windowHelp(title: String, window: UsageWindow?) -> String {
-        guard let window else { return "\(title)\nNo data" }
+    /// Строки детализации одного окна для сабменю аккаунта (выбор владельца 12.07:
+    /// детали выпадают вправо сабменю, как Rename/Re-login/Remove, а не системным
+    /// тултипом — тот выглядел чужеродно, да и работал только через NSView.toolTip).
+    static func windowDetail(title: String, window: UsageWindow?)
+        -> (summary: String, reset: String?, forecast: String?) {
+        guard let window else { return ("\(title) — no data", nil, nil) }
         let used = Int(window.utilization)
-        var lines = [title, "\(used)% used · \(100 - used)% left"]
+        let summary = "\(title) — \(used)% used · \(100 - used)% left"
+        var reset: String? = nil
         if let resetsAt = window.resetsAt, let absolute = ResetClock.label(resetsAt) {
             let rel = RelativeDateTimeFormatter(); rel.unitsStyle = .full
-            lines.append("Resets \(absolute) (\(rel.localizedString(for: resetsAt, relativeTo: .now)))")
+            reset = "Resets \(absolute) (\(rel.localizedString(for: resetsAt, relativeTo: .now)))"
         }
+        var forecast: String? = nil
         if let projected = window.projectedExhaustion, let label = ResetClock.label(projected) {
-            lines.append("At this pace, hits 100% ~\(label)")
+            forecast = "At this pace, hits 100% ~\(label)"
         }
-        return lines.joined(separator: "\n")
+        return (summary, reset, forecast)
     }
 
     var body: some View {
@@ -235,13 +209,6 @@ enum MenuRowFactory {
         host.sizingOptions = []
         host.frame = NSRect(x: 0, y: 0, width: rowWidth, height: rowHeight)
         item.view = host
-        // Вся детализация — в тултипе. Два канала сразу: NSMenuItem.toolTip
-        // (канонический для пунктов меню) и NSView.toolTip на hosting-view —
-        // у view-based пунктов мышь трекает сама view, и срабатывает view-канал.
-        let tip = AccountRowView.toolTip(name: account.name, state: state, kind: account.kind,
-                                         email: account.email, plan: account.plan)
-        item.toolTip = tip
-        host.toolTip = tip
         item.representedObject = account.id
         return item
     }

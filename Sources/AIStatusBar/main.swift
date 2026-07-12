@@ -101,6 +101,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func accountSubmenu(_ account: Account) -> NSMenu {
         let sub = NSMenu()
+        // Детали окон живут в этом же сабменю (выбор владельца 12.07: «выпадает
+        // справа, как Rename/Re-login/Remove», а не системным тултипом). Состав
+        // зависит от текущего state — освежаем при каждом открытии через
+        // menuNeedsUpdate, аккаунт узнаём по identifier.
+        sub.identifier = NSUserInterfaceItemIdentifier(account.id.uuidString)
+        sub.delegate = self
+        populateAccountSubmenu(sub, account: account)
+        return sub
+    }
+
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        guard menu !== self.menu,
+              let raw = menu.identifier?.rawValue, let id = UUID(uuidString: raw),
+              let account = store.accounts.first(where: { $0.id == id }) else { return }
+        populateAccountSubmenu(menu, account: account)
+    }
+
+    private func populateAccountSubmenu(_ sub: NSMenu, account: Account) {
+        sub.removeAllItems()
+        addAccountDetails(sub, account: account)
         let rename = NSMenuItem(title: "Rename…", action: #selector(renameAccount(_:)), keyEquivalent: "")
         rename.target = self; rename.representedObject = account.id
         sub.addItem(rename)
@@ -113,7 +133,51 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let remove = NSMenuItem(title: "Remove", action: #selector(removeAccount(_:)), keyEquivalent: "")
         remove.target = self; remove.representedObject = account.id
         sub.addItem(remove)
-        return sub
+    }
+
+    /// Информационные пункты сабменю: без action — NSMenu сам рисует их серыми
+    /// (autoenablesItems). Оранжевый burn-rate прогноз — через attributedTitle.
+    private func addAccountDetails(_ sub: NSMenu, account: Account) {
+        var head: [String] = []
+        let service = account.kind == .codex ? "Codex" : "Claude Code"
+        head.append(account.plan.map { "\(service) · \($0)" } ?? service)
+        if let email = account.email, !email.isEmpty, email != account.name { head.append(email) }
+        for line in head { sub.addItem(NSMenuItem(title: line, action: nil, keyEquivalent: "")) }
+        sub.addItem(.separator())
+
+        switch poller.state(for: account.id) {
+        case .pending:
+            sub.addItem(NSMenuItem(title: "Loading…", action: nil, keyEquivalent: ""))
+            sub.addItem(.separator())
+        case .failed(let badge):
+            sub.addItem(NSMenuItem(title: badge, action: nil, keyEquivalent: ""))
+            sub.addItem(.separator())
+        case .ok(let usage, _), .stale(let usage, _, _):
+            addWindowDetails(sub, title: "5-hour window", window: usage.fiveHour)
+            sub.addItem(.separator())
+            addWindowDetails(sub, title: "Weekly window", window: usage.sevenDay)
+            sub.addItem(.separator())
+            if case .stale(_, _, let badge) = poller.state(for: account.id) {
+                sub.addItem(NSMenuItem(title: "⚠ \(badge)", action: nil, keyEquivalent: ""))
+                sub.addItem(.separator())
+            }
+        }
+    }
+
+    private func addWindowDetails(_ sub: NSMenu, title: String, window: UsageWindow?) {
+        let detail = AccountRowView.windowDetail(title: title, window: window)
+        sub.addItem(NSMenuItem(title: detail.summary, action: nil, keyEquivalent: ""))
+        if let reset = detail.reset {
+            sub.addItem(NSMenuItem(title: reset, action: nil, keyEquivalent: ""))
+        }
+        if let forecast = detail.forecast {
+            let item = NSMenuItem(title: forecast, action: nil, keyEquivalent: "")
+            item.attributedTitle = NSAttributedString(
+                string: forecast,
+                attributes: [.foregroundColor: NSColor.systemOrange,
+                             .font: NSFont.menuFont(ofSize: 0)])
+            sub.addItem(item)
+        }
     }
 
     private func render() {
@@ -133,13 +197,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             guard let id = item.representedObject as? UUID,
                   let account = store.accounts.first(where: { $0.id == id }),
                   let host = item.view as? NSHostingView<AccountRowView> else { continue }
-            let state = poller.state(for: id)
-            host.rootView = AccountRowView(name: account.name, state: state,
+            host.rootView = AccountRowView(name: account.name, state: poller.state(for: id),
                                            kind: account.kind, email: account.email, plan: account.plan)
-            let tip = AccountRowView.toolTip(name: account.name, state: state, kind: account.kind,
-                                             email: account.email, plan: account.plan)
-            item.toolTip = tip
-            host.toolTip = tip
         }
     }
 
