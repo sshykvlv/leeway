@@ -28,6 +28,10 @@ struct Account: Codable, Equatable, Identifiable {
     /// Для дополнительных Codex-аккаунтов — путь к их CODEX_HOME (папке с auth.json).
     /// nil = основной автоподхваченный Codex (использует ~/.codex по умолчанию).
     var codexHome: String? = nil
+    /// Для дополнительных Claude CLI-профилей — путь к их CLAUDE_CONFIG_DIR.
+    /// Claude Code кладёт креды такого профиля в Keychain-сервис с hash-суффиксом
+    /// от этого пути (см. KeychainStore.claudeCodeService). nil = основной ~/.claude.
+    var claudeConfigDir: String? = nil
 
     /// Names an owner never customized, used as a fallback signal that a row's
     /// email (once fetched) is more informative than its generic default name.

@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import Security
 
@@ -11,8 +12,19 @@ enum KeychainStore {
     private static let ownService = "AIStatusBar"
 
     // MARK: чтение кредов Claude Code (read-only, ничего не пишем)
-    static func claudeCodeTokens() -> OAuthTokens? {
-        guard let data = read(service: "Claude Code-credentials", account: nil),
+
+    /// Имя Keychain-сервиса Claude Code. Без CLAUDE_CONFIG_DIR это "Claude Code-credentials";
+    /// с ним CLI добавляет суффикс — первые 8 hex-символов SHA-256 от пути конфиг-папки
+    /// (причём даже если путь указывает на дефолтный ~/.claude).
+    static func claudeCodeService(configDir: String?) -> String {
+        guard let configDir else { return "Claude Code-credentials" }
+        let digest = SHA256.hash(data: Data(configDir.utf8))
+        let suffix = digest.map { String(format: "%02x", $0) }.joined().prefix(8)
+        return "Claude Code-credentials-\(suffix)"
+    }
+
+    static func claudeCodeTokens(configDir: String? = nil) -> OAuthTokens? {
+        guard let data = read(service: claudeCodeService(configDir: configDir), account: nil),
               let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let oauth = root["claudeAiOauth"] as? [String: Any],   // может отсутствовать (CC 2.1.x гоча)
               let access = oauth["accessToken"] as? String,

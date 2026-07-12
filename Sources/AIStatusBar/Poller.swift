@@ -77,7 +77,9 @@ final class Poller {
     private func fetchUsage(for account: Account) async throws -> Usage {
         switch account.kind {
         case .claudeMain:
-            guard let t = KeychainStore.claudeCodeTokens() else { throw FetchError.unauthorized }
+            guard let t = KeychainStore.claudeCodeTokens(configDir: account.claudeConfigDir) else {
+                throw FetchError.unauthorized
+            }
             return try await ClaudeProvider().fetchUsage(accessToken: t.accessToken)
         case .claudeOAuth:
             guard var t = ownTokens[account.id] ?? KeychainStore.loadOwn(accountID: account.id) else {
@@ -131,7 +133,7 @@ final class Poller {
         identityAttempted.insert(account.id)
         switch account.kind {
         case .claudeMain:
-            guard let t = KeychainStore.claudeCodeTokens() else { return }
+            guard let t = KeychainStore.claudeCodeTokens(configDir: account.claudeConfigDir) else { return }
             if let profile = try? await ClaudeProvider().fetchProfile(accessToken: t.accessToken) {
                 store.setEmail(id: account.id, profile.email, plan: profile.planLabel)
             }
@@ -150,7 +152,7 @@ final class Poller {
 
     private func badgeForAuthFailure(_ account: Account) -> String {
         switch account.kind {
-        case .claudeMain: return "open Claude Code"
+        case .claudeMain: return account.claudeConfigDir == nil ? "open Claude Code" : "re-login CLI profile"
         case .claudeOAuth: return "re-login"
         case .codex: return "run codex login"
         }

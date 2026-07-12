@@ -89,6 +89,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         updatedItem.isEnabled = false
         menu.addItem(updatedItem)
         addAction("Add Claude Account…", #selector(addAccount))
+        addAction("Add Claude CLI Profile…", #selector(addClaudeProfile))
         addAction("Add Codex Account…", #selector(addCodexAccount))
         menu.addItem(.separator())
         let login = addAction("Launch at Login", #selector(toggleLogin))
@@ -274,6 +275,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let email = auth.email()
         store.add(Account(id: UUID(), name: email ?? "Codex", kind: .codex,
                           email: email, codexHome: home))
+        render()
+    }
+    @objc private func addClaudeProfile() {
+        // Второй Claude-аккаунт живёт в отдельном CLAUDE_CONFIG_DIR; логинит его сам
+        // Claude Code (кладёт креды в Keychain-сервис с hash-суффиксом от пути папки).
+        // Даём выбрать папку профиля; read-only читаем токены из Keychain.
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.allowsMultipleSelection = false
+        panel.showsHiddenFiles = true
+        panel.message = "Choose a Claude config folder (e.g. ~/.claude-max2 — a CLAUDE_CONFIG_DIR you logged into with `claude /login`)."
+        panel.prompt = "Add"
+        NSApp.activate(ignoringOtherApps: true)
+        guard panel.runModal() == .OK, let dir = panel.url else { return }
+        let configDir = dir.path
+        guard KeychainStore.claudeCodeTokens(configDir: configDir) != nil else {
+            let a = NSAlert()
+            a.messageText = "No Claude login found for that profile"
+            a.informativeText = "No Keychain credentials exist for this folder. Run `CLAUDE_CONFIG_DIR=<folder> claude` and `/login` first, then try again."
+            a.runModal()
+            return
+        }
+        // Дедуп по конфиг-папке (nil = основной автоподхваченный ~/.claude).
+        let existingDirs = store.accounts.filter { $0.kind == .claudeMain }.map { $0.claudeConfigDir }
+        if existingDirs.contains(configDir) { NSSound.beep(); return }
+        store.add(Account(id: UUID(), name: "Claude 2", kind: .claudeMain, email: nil,
+                          claudeConfigDir: configDir))
         render()
     }
     @objc private func toggleLogin() {
