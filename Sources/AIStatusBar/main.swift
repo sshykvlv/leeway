@@ -136,8 +136,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let state = poller.state(for: id)
             host.rootView = AccountRowView(name: account.name, state: state,
                                            kind: account.kind, email: account.email, plan: account.plan)
-            item.toolTip = AccountRowView.toolTip(name: account.name, state: state, kind: account.kind,
-                                                  email: account.email, plan: account.plan)
+            let tip = AccountRowView.toolTip(name: account.name, state: state, kind: account.kind,
+                                             email: account.email, plan: account.plan)
+            item.toolTip = tip
+            host.toolTip = tip
         }
     }
 

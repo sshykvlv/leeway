@@ -212,7 +212,7 @@ private struct WindowChip: View {
         .padding(.horizontal, 7)
         .padding(.vertical, 2.5)
         .background(
-            RoundedRectangle(cornerRadius: 5, style: .continuous)
+            RoundedRectangle(cornerRadius: 7, style: .continuous)
                 .fill(hovered ? Color.white.opacity(0.18) : Color(nsColor: .quaternaryLabelColor))
         )
     }
@@ -234,9 +234,13 @@ enum MenuRowFactory {
         host.sizingOptions = []
         host.frame = NSRect(x: 0, y: 0, width: rowWidth, height: rowHeight)
         item.view = host
-        // Вся детализация — здесь: view-тултипы внутри NSMenu не показываются.
-        item.toolTip = AccountRowView.toolTip(name: account.name, state: state, kind: account.kind,
-                                              email: account.email, plan: account.plan)
+        // Вся детализация — в тултипе. Два канала сразу: NSMenuItem.toolTip
+        // (канонический для пунктов меню) и NSView.toolTip на hosting-view —
+        // у view-based пунктов мышь трекает сама view, и срабатывает view-канал.
+        let tip = AccountRowView.toolTip(name: account.name, state: state, kind: account.kind,
+                                         email: account.email, plan: account.plan)
+        item.toolTip = tip
+        host.toolTip = tip
         item.representedObject = account.id
         return item
     }
