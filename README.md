@@ -3,12 +3,11 @@
 A menu bar app that shows how much usage you have left on multiple Claude accounts and Codex, at a glance.
 
 ![AI Status Bar menu](docs/screenshot.png)
-<!-- TODO: add a real screenshot -->
 
 ## Install
 
 ```
-brew install --cask sshykvlv/tap/aistatusbar
+brew install --cask sshykvlv/tap/ai-status-bar
 ```
 
 Or download `AIStatusBar.zip` from [Releases](https://github.com/sshykvlv/ai-status-bar/releases) and unzip it to `/Applications`.
@@ -17,9 +16,11 @@ Or download `AIStatusBar.zip` from [Releases](https://github.com/sshykvlv/ai-sta
 
 Your primary Claude Code account and Codex (`~/.codex`) are detected automatically — nothing to configure.
 
+On first launch macOS will ask to allow access to the "Claude Code-credentials" Keychain item — that's the app reading your existing Claude Code login (read-only, see Privacy below) to show its usage. Click **Always Allow** and you're set.
+
 Add a second Claude account via **Add Claude Account…** in the menu — it opens a browser login, no cookie pasting.
 
-The icon is a mini equalizer: one bar per account. The fill shows how much you have left, and a bar turns red once an account drops under 10% remaining.
+The icon is a mini equalizer: one bar per account. The fill shows how much you've used; a bar turns orange when usage crosses 70% and red at 90%.
 
 ## Privacy
 
