@@ -15,16 +15,18 @@ rep.size = NSSize(width: W, height: H)
 NSGraphicsContext.saveGraphicsState()
 NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
 
-// Фон: тот же графитовый градиент, что на тайле иконки, но во весь кадр.
-let top = NSColor(srgbRed: 0.145, green: 0.145, blue: 0.165, alpha: 1)
-let bottom = NSColor(srgbRed: 0.086, green: 0.086, blue: 0.102, alpha: 1)
+// Фон: тот же белый градиент, что на тайле иконки, но во весь кадр
+// (светлая тема — в тон лендингу и новой иконке, выбор владельца 13.07).
+let top = NSColor(srgbRed: 1.0, green: 1.0, blue: 1.0, alpha: 1)
+let bottom = NSColor(srgbRed: 0.945, green: 0.945, blue: 0.955, alpha: 1)
 NSGradient(starting: top, ending: bottom)!.draw(in: NSRect(x: 0, y: 0, width: W, height: H), angle: -90)
 
 // Глиф: три бара как в иконке, слева от wordmark, по центру композиции.
 struct Bar { let fill: CGFloat; let color: NSColor }
+let graphite = NSColor(srgbRed: 0.145, green: 0.145, blue: 0.165, alpha: 1)
 let bars: [Bar] = [
-    Bar(fill: 0.78, color: NSColor(srgbRed: 0.92, green: 0.91, blue: 0.89, alpha: 1)),
-    Bar(fill: 0.52, color: NSColor(srgbRed: 0.92, green: 0.91, blue: 0.89, alpha: 1)),
+    Bar(fill: 0.78, color: graphite),
+    Bar(fill: 0.52, color: graphite),
     Bar(fill: 0.24, color: NSColor(srgbRed: 1.00, green: 0.69, blue: 0.25, alpha: 1)),
 ]
 let barW: CGFloat = 34, gap: CGFloat = 24, trackH: CGFloat = 190
@@ -34,7 +36,7 @@ let glyphW = barW * 3 + gap * 2
 let wordFont = NSFont.systemFont(ofSize: 96, weight: .semibold)
 let wordAttrs: [NSAttributedString.Key: Any] = [
     .font: wordFont,
-    .foregroundColor: NSColor(srgbRed: 0.95, green: 0.94, blue: 0.93, alpha: 1),
+    .foregroundColor: graphite,
     .kern: -1.5,
 ]
 let word = NSAttributedString(string: "AI Status Bar", attributes: wordAttrs)
@@ -51,7 +53,7 @@ for (i, bar) in bars.enumerated() {
     let x = rowX + CGFloat(i) * (barW + gap)
     let track = NSBezierPath(roundedRect: NSRect(x: x, y: barsY, width: barW, height: trackH),
                              xRadius: barW / 2, yRadius: barW / 2)
-    NSColor(white: 1, alpha: 0.10).setFill()
+    NSColor(white: 0, alpha: 0.07).setFill()
     track.fill()
     let h = max(barW, trackH * bar.fill)
     let fill = NSBezierPath(roundedRect: NSRect(x: x, y: barsY, width: barW, height: h),
@@ -67,7 +69,7 @@ word.draw(at: NSPoint(x: rowX + glyphW + glyphGap, y: rowCenterY - wordSize.heig
 let tagSize: CGFloat = 40
 let tagPlain: [NSAttributedString.Key: Any] = [
     .font: NSFont.systemFont(ofSize: tagSize, weight: .regular),
-    .foregroundColor: NSColor(white: 1, alpha: 0.62),
+    .foregroundColor: NSColor(white: 0, alpha: 0.55),
 ]
 var serif = NSFont.systemFont(ofSize: tagSize, weight: .regular)
 if let d = serif.fontDescriptor.withDesign(.serif),
