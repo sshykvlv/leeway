@@ -48,3 +48,16 @@ enum FetchError: Error, Equatable {
     case network(String)
     case badResponse(String)
 }
+
+import AppKit
+
+extension NSColor {
+    /// Warn-оранжевый порогов: в тёмной теме — systemOrange, в светлой — более
+    /// глубокий янтарный (фидбэк владельца 13.07: systemOrange на светлом фоне
+    /// чипа читается слабо). Динамический — резолвится по appearance при отрисовке.
+    static let asbWarn = NSColor(name: nil) { appearance in
+        appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
+            ? .systemOrange
+            : NSColor(srgbRed: 0.72, green: 0.40, blue: 0.0, alpha: 1.0)
+    }
+}

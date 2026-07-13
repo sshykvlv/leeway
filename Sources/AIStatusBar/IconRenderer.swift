@@ -69,7 +69,7 @@ enum IconRenderer {
     private static func fillColor(for severity: Severity) -> NSColor {
         switch severity {
         case .danger: return .systemRed
-        case .warn: return .systemOrange
+        case .warn: return .asbWarn
         case .normal: return .labelColor
         }
     }

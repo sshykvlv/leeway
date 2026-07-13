@@ -176,7 +176,7 @@ private struct WindowChip: View {
         if hovered { return .white }
         guard let util = window?.utilization else { return Color(nsColor: .tertiaryLabelColor) }
         if util >= 90 { return Color(nsColor: .systemRed) }
-        if util >= 70 { return Color(nsColor: .systemOrange) }
+        if util >= 70 { return Color(nsColor: .asbWarn) }
         return Color(nsColor: .secondaryLabelColor)
     }
 
@@ -190,7 +190,7 @@ private struct WindowChip: View {
             if forecast {
                 Image(systemName: "bolt.fill")
                     .font(.system(size: 8.5, weight: .semibold))
-                    .foregroundStyle(hovered ? Color.white : Color(nsColor: .systemOrange))
+                    .foregroundStyle(hovered ? Color.white : Color(nsColor: .asbWarn))
             }
             (Text(window.map { "\(Int($0.utilization))%" } ?? "—")
                 .font(.system(size: 11, weight: .semibold))

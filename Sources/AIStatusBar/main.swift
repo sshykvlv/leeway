@@ -155,13 +155,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             sub.addItem(infoItem("Loading…", color: .secondaryLabelColor))
             sub.addItem(.separator())
         case .failed(let badge):
-            sub.addItem(infoItem(badge, color: .systemOrange))
+            sub.addItem(infoItem(badge, color: .asbWarn))
             sub.addItem(.separator())
         case .ok(let usage, _), .stale(let usage, _, _):
             addWindowDetails(sub, title: "5-hour window", window: usage.fiveHour)
             addWindowDetails(sub, title: "Weekly window", window: usage.sevenDay)
             if case .stale(_, _, let badge) = poller.state(for: account.id) {
-                sub.addItem(infoItem("⚠ \(badge)", color: .systemOrange))
+                sub.addItem(infoItem("⚠ \(badge)", color: .asbWarn))
             }
             sub.addItem(.separator())
         }
@@ -187,7 +187,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         item.attributedTitle = line
         sub.addItem(item)
         if let forecast = detail.forecast {
-            sub.addItem(infoItem(forecast, color: .systemOrange))
+            sub.addItem(infoItem(forecast, color: .asbWarn))
         }
     }
 
