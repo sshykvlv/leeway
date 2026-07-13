@@ -83,7 +83,7 @@ em { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 40
    (mask-фейд, паттерн Lidless), и меню, плавающее под ней прямо на фоне
    страницы. Светлая тема macOS — в тон светлому лендингу. */
 .showcase { padding: 12px 0 40px; text-align: center; }
-.screen { position: relative; max-width: 760px; height: 330px; margin: 0 auto; text-align: left; }
+.screen { position: relative; max-width: 760px; height: 385px; margin: 0 auto; text-align: left; }
 .menubar {
   position: absolute; top: 0; left: 0; right: 0; height: 30px;
   display: flex; align-items: center; justify-content: flex-end; gap: 15px;
@@ -102,39 +102,59 @@ em { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 40
 .mb-bars .bars-low { fill: var(--amber-text); }
 .mb-clock { font-size: 12.5px; color: #3d3f46; font-variant-numeric: tabular-nums; }
 .menu {
-  position: absolute; top: 38px; right: 92px; width: 372px;
+  position: absolute; top: 38px; right: 92px; width: 400px;
   background: rgba(248, 248, 251, 0.88);
   -webkit-backdrop-filter: blur(26px) saturate(160%); backdrop-filter: blur(26px) saturate(160%);
   border: 1px solid rgba(20, 24, 32, 0.10); border-radius: 14px;
   padding: 6px; box-shadow: 0 24px 56px rgba(22, 26, 34, 0.28);
 }
 .acct {
-  display: flex; align-items: center; gap: 0;
-  padding: 4px 10px; border-radius: 7px; height: 30px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 10px; border-radius: 7px; height: 28px;
 }
-.acct:hover { background: #2e6be6; }
-.acct:hover .acct-name, .acct:hover .acct-svc, .acct:hover .cap { color: #fff; }
-.acct-id { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.1; }
+.acct:hover, .acct-open { background: #2e6be6; }
+.acct:hover .acct-name, .acct:hover .acct-sfx, .acct-open .acct-name, .acct-open .acct-sfx { color: #fff; }
+.acct:hover .chev, .acct-open .chev { color: rgba(255,255,255,0.85); }
+.acct-line { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .acct-name { font-size: 13px; font-weight: 600; color: #1c1e24; }
-.acct-svc { font-size: 10px; font-weight: 500; color: #7a7d86; }
+.acct-sfx { font-size: 11px; color: #7a7d86; }
 
-/* CSS ring gauges: conic fill + inner cutout; подпись одной строкой «5h · 19:04» */
-.gauge { display: inline-flex; align-items: center; gap: 6px; width: 102px; flex: none; }
-.ring {
-  --v: 0; --c: var(--green);
-  width: 20px; height: 20px; border-radius: 50%; flex: none;
-  background:
-    radial-gradient(closest-side, #f4f4f7 74%, transparent 75% 100%),
-    conic-gradient(var(--c) calc(var(--v) * 1%), rgba(20, 24, 32, 0.12) 0);
-  display: grid; place-items: center;
+/* Плашки-чипы окон — как в приложении: скруглённый прямоугольник,
+   слева всегда 5h, справа 7d; цвет несут только горячие цифры. */
+.chips { display: inline-flex; align-items: center; gap: 6px; flex: none; }
+.chip {
+  display: inline-flex; align-items: baseline; gap: 3px;
+  padding: 2px 7px 3px; border-radius: 7px;
+  background: rgba(20, 24, 32, 0.07);
+  font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap;
 }
-.ring span { font-size: 8px; font-weight: 600; color: #1c1e24; font-variant-numeric: tabular-nums; }
-.ring.warn { --c: var(--yellow); }
-.ring.hot { --c: var(--red); }
-.cap { font-size: 11px; color: #6e717a; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.cap b { font-weight: 600; color: #94969e; font-size: 10px; }
-.cap.hot { color: var(--red); font-weight: 600; }
-.cap.warn { color: #c47f14; font-weight: 500; }
+.chip b { font-weight: 600; color: #6e717a; }
+.chip b.warn { color: #a35c00; }
+.chip b.hot { color: var(--red); }
+.chip .rst { color: #8a8d96; }
+.chip .bolt { font-size: 9px; color: #c47f14; }
+.acct:hover .chip, .acct-open .chip { background: rgba(255, 255, 255, 0.22); }
+.acct:hover .chip b, .acct:hover .chip .rst, .acct:hover .chip .bolt,
+.acct-open .chip b, .acct-open .chip .rst, .acct-open .chip .bolt { color: #fff; }
+.chev { flex: none; color: #b6b9c0; font-size: 13px; font-weight: 700; line-height: 1; }
+
+/* Сабменю деталей аккаунта — выпадает справа от подсвеченной строки. */
+.submenu {
+  position: absolute; top: 96px; right: -196px; width: 356px;
+  background: rgba(248, 248, 251, 0.94);
+  -webkit-backdrop-filter: blur(26px) saturate(160%); backdrop-filter: blur(26px) saturate(160%);
+  border: 1px solid rgba(20, 24, 32, 0.10); border-radius: 12px;
+  padding: 6px; box-shadow: 0 24px 56px rgba(22, 26, 34, 0.30);
+  font-size: 12.5px;
+}
+.smi { padding: 3px 10px; color: #55585f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.smi b { font-weight: 600; color: #1c1e24; }
+.smi-title { font-weight: 600; color: #1c1e24; }
+.smi-dim { color: #8a8d96; }
+.smi-rst { color: #8a8d96; }
+.smi-fc { color: #a35c00; }
+.smi-act { color: #1c1e24; border-radius: 6px; padding-block: 4px; }
+.smi-act:hover { background: #2e6be6; color: #fff; }
 
 .mi { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 7px; font-size: 13px; color: #1c1e24; }
 .mi:hover { background: #2e6be6; color: #fff; }
@@ -233,5 +253,6 @@ em { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 40
   .tipbar { flex-direction: column; text-align: center; }
   .hero { padding-top: 40px; }
   .hero-icon { width: 120px; height: 120px; border-radius: 27px; }
-  .gauge { width: 96px; }
+  .submenu { display: none; }   /* на узких экранах сабменю не влезает */
+  .menu { right: 12px; }
 }

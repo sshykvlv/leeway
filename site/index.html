@@ -46,7 +46,7 @@
     "Live 5-hour and weekly usage gauges for Claude Code and Codex",
     "Multiple accounts side by side — add extra Claude accounts via OAuth",
     "Menu-bar bars turn yellow and red as a window fills up",
-    "Exact reset time always visible next to every gauge",
+    "Exact reset times one hover away — and shown inline the moment a window runs dry",
     "Tokens stay in the macOS Keychain; talks only to the official usage endpoints",
     "Universal binary (Apple Silicon + Intel), signed and notarized by Apple"
   ],
@@ -136,28 +136,28 @@
       </div>
       <div class="menu" role="menu" aria-label="AI Status Bar menu">
         <div class="acct">
-          <div class="acct-id">
-            <span class="acct-name">Main</span>
-            <span class="acct-svc">Claude Code · Max 20x</span>
-          </div>
-          <span class="gauge"><span class="ring" style="--v:62"><span>62</span></span><span class="cap"><b>5h</b> · 19:04</span></span>
-          <span class="gauge"><span class="ring" style="--v:41"><span>41</span></span><span class="cap"><b>7d</b> · Tue 09:00</span></span>
+          <span class="acct-line"><span class="acct-name">Personal</span><span class="acct-sfx"> · Claude</span></span>
+          <span class="chips">
+            <span class="chip"><b class="hot">100%</b><span class="rst"> · 15:12</span></span>
+            <span class="chip"><b class="warn">87%</b></span>
+          </span>
+          <span class="chev">›</span>
+        </div>
+        <div class="acct acct-open">
+          <span class="acct-line"><span class="acct-name">Work</span><span class="acct-sfx"> · Claude</span></span>
+          <span class="chips">
+            <span class="chip"><span class="bolt">⚡</span><b>42%</b></span>
+            <span class="chip"><b>18%</b></span>
+          </span>
+          <span class="chev">›</span>
         </div>
         <div class="acct">
-          <div class="acct-id">
-            <span class="acct-name">Max 2</span>
-            <span class="acct-svc">Claude Code · Max 20x</span>
-          </div>
-          <span class="gauge"><span class="ring warn" style="--v:84"><span>84</span></span><span class="cap warn"><b>5h</b> → 17:30</span></span>
-          <span class="gauge"><span class="ring" style="--v:53"><span>53</span></span><span class="cap"><b>7d</b> · Wed 12:00</span></span>
-        </div>
-        <div class="acct">
-          <div class="acct-id">
-            <span class="acct-name">Codex</span>
-            <span class="acct-svc">Codex · Plus</span>
-          </div>
-          <span class="gauge"><span class="ring hot" style="--v:100"><span>100</span></span><span class="cap hot"><b>5h</b> · 15:12</span></span>
-          <span class="gauge"><span class="ring warn" style="--v:71"><span>71</span></span><span class="cap"><b>7d</b> · Fri 08:00</span></span>
+          <span class="acct-line"><span class="acct-name">sasha@example.com</span><span class="acct-sfx"> · Codex</span></span>
+          <span class="chips">
+            <span class="chip"><b>8%</b></span>
+            <span class="chip"><b class="warn">74%</b></span>
+          </span>
+          <span class="chev">›</span>
         </div>
         <div class="mi-sep"></div>
         <div class="mi"><span class="mi-label">Add Claude Account…</span></div>
@@ -165,8 +165,21 @@
         <div class="mi-sep"></div>
         <div class="mi"><span class="mi-label">Quit AI Status Bar</span><span class="mi-kbd">⌘Q</span></div>
       </div>
+      <div class="submenu" aria-label="Account details">
+        <div class="smi smi-title">Work</div>
+        <div class="smi smi-dim">Claude Code · Max 20x</div>
+        <div class="mi-sep"></div>
+        <div class="smi"><b>5-hour window</b> — 42%<span class="smi-rst"> · resets 17:40 (in 4 hours)</span></div>
+        <div class="smi smi-fc">At this pace, hits 100% ~14:22</div>
+        <div class="smi"><b>Weekly window</b> — 18%<span class="smi-rst"> · resets Fr 07:34 (in 5 days)</span></div>
+        <div class="mi-sep"></div>
+        <div class="smi smi-act">Rename…</div>
+        <div class="smi smi-act">Re-login…</div>
+        <div class="mi-sep"></div>
+        <div class="smi smi-act">Remove</div>
+      </div>
     </div>
-    <p class="showcase-cap">Rows are accounts; rings are the 5-hour and weekly windows, each with its exact reset time. Green is headroom, yellow is “wrap it up”, orange <em class="fc">→ 17:30</em> forecasts when you’ll hit the wall at this pace, and when a window runs dry the clock turns red — <em>15:12</em> beats a surprise lockout.</p>
+    <p class="showcase-cap">Rows are accounts; the two chips are the 5-hour and weekly windows. Numbers stay quiet grey while you have headroom, turn amber past 70% and red past 90%; <em class="fc">⚡</em> means at this pace the window fills before it resets, and a dry window shows its comeback time inline — <em>100% · 15:12</em> beats a surprise lockout. Hover any account for full details.</p>
   </section>
 
   <!-- HIGHLIGHTS -->
@@ -179,7 +192,7 @@
     <div class="bite">
       <span class="emoji">🧱</span>
       <h3>The wall, before you hit it</h3>
-      <p>The menu-bar bars slide green → yellow → red as a window fills. Every ring carries its exact reset time — plan the heavy run instead of discovering the cap mid-task.</p>
+      <p>Everything stays quiet monochrome while you have headroom — color only appears past 70%, red past 90%. Hover an account for exact reset times, and a burn-rate forecast warns when you’ll hit the wall at this pace.</p>
     </div>
     <div class="bite">
       <span class="emoji">🪶</span>
