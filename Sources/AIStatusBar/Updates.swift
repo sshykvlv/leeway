@@ -19,7 +19,7 @@ enum Updates {
     }
 
     static func check(announce: Bool) {
-        guard let api = URL(string: "https://api.github.com/repos/sshykvlv/aistatusbar/releases/latest") else { return }
+        guard let api = URL(string: "https://api.github.com/repos/sshykvlv/ai-status-bar/releases/latest") else { return }
         var req = URLRequest(url: api)
         req.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         URLSession.shared.dataTask(with: req) { data, _, error in
