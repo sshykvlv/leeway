@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>7 Best Claude Code Usage Trackers Compared (2026)</title>
+<meta name="description" content="Every way to check your Claude Code usage in 2026 — the built-in /usage command, ccusage, Claude-Code-Usage-Monitor, CodexBar, menu-bar trackers — compared honestly by what they can and can't show." />
+<link rel="canonical" href="https://aistatusbar.ykv.lv/guides/claude-code-usage-trackers/" />
+<meta property="og:title" content="7 Best Claude Code Usage Trackers (2026 Compared)" />
+<meta property="og:description" content="From the built-in /usage to menu-bar apps — an honest comparison table." />
+<meta property="og:image" content="https://aistatusbar.ykv.lv/assets/og.png" />
+<meta property="og:url" content="https://aistatusbar.ykv.lv/guides/claude-code-usage-trackers/" />
+<meta property="og:type" content="article" />
+<meta name="theme-color" content="#eef0f3" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="stylesheet" href="/guides.css" />
+<script defer src="https://stats.ykv.lv/script.js" data-website-id="6cb26f94-9604-4eef-96fb-fe29b905bd7e"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "7 Best Claude Code Usage Trackers Compared",
+  "datePublished": "2026-07-13",
+  "dateModified": "2026-07-13",
+  "author": { "@type": "Organization", "name": "AI Status Bar" },
+  "publisher": { "@type": "Organization", "name": "AI Status Bar", "url": "https://aistatusbar.ykv.lv/" }
+}
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="bars" viewBox="0 0 24 24">
+    <rect x="3"  y="4" width="4.6" height="16" rx="2.3" fill="var(--claude)" opacity=".9"/>
+    <rect x="9.7" y="4" width="4.6" height="16" rx="2.3" fill="var(--amber)"/>
+    <rect x="16.4" y="4" width="4.6" height="16" rx="2.3" fill="var(--codex)"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <a class="nav-buy" href="/#get">Get AI Status Bar · free</a>
+</header>
+
+<main>
+<article class="article">
+  <p class="crumbs"><a href="/">Home</a> · <a href="/guides/">Guides</a> · Usage trackers compared</p>
+  <h1>How to track your Claude Code usage: 7 tools compared</h1>
+  <p class="lede">"Usage" means two different things — tokens you've spent (history) and quota you have left (live). Tools specialize in one or the other. Here's the whole landscape, including the built-in option, so you can pick by scenario instead of by GitHub stars.</p>
+  <span class="verified"><span class="dot"></span>Checked: July 13, 2026 · we build one of these tools, table stays honest anyway</span>
+
+  <h2>First: what the built-in <code>/usage</code> shows</h2>
+  <p>Claude Code ships its own answer — run <code>/usage</code> in a session and you get your 5-hour and weekly percentages with reset countdowns (in older builds: <code>/status</code>). claude.ai → Settings → Usage shows the same on the web. That's the official baseline, and for occasional checking it's fine. Everything below exists because of what it can't do: it lives inside a session, shows one account, keeps no history, and never warns you first.</p>
+
+  <h2>The comparison</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Tool</th><th>Format</th><th>Live quota (5h + weekly)</th><th>History / cost</th><th>Alerts</th><th>Multi-account</th><th>Codex too</th></tr></thead>
+    <tbody>
+      <tr><td>Built-in <code>/usage</code></td><td>CLI command</td><td class="yes">Yes, current account</td><td class="no">No</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+      <tr><td><a class="inline" href="https://github.com/ccusage/ccusage">ccusage</a></td><td>CLI reports</td><td class="no">No (log-based)</td><td class="yes">Excellent</td><td class="no">No</td><td>Partial</td><td>Historical</td></tr>
+      <tr><td><a class="inline" href="https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor">Claude-Code-Usage-Monitor</a></td><td>Terminal dashboard</td><td>Estimated from logs</td><td class="yes">Good, with forecasting</td><td>In-terminal</td><td class="no">No</td><td class="no">No</td></tr>
+      <tr><td><a class="inline" href="https://codexbar.app/">CodexBar</a></td><td>macOS menu bar</td><td class="yes">Yes (59 providers)</td><td>Limited</td><td>Countdowns</td><td>Not a core feature</td><td class="yes">Yes</td></tr>
+      <tr><td>ClaudeUsageBar</td><td>macOS menu bar</td><td>Partial</td><td class="no">No</td><td>Thresholds</td><td class="no">No</td><td class="no">No</td></tr>
+      <tr><td>SessionWatcher</td><td>macOS menu bar</td><td>Partial</td><td>Limited</td><td>Yes</td><td class="no">No</td><td class="no">No</td></tr>
+      <tr><td><a class="inline" href="/">AI Status Bar</a></td><td>macOS menu bar</td><td class="yes">Yes</td><td class="no">No (by design)</td><td class="yes">System, 80/90% + burn-rate forecast</td><td class="yes">Yes, first-class</td><td class="yes">Yes, live</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Pick by scenario</h2>
+  <ul>
+    <li><strong>"How much did this project cost in tokens?"</strong> → ccusage. Retrospective analytics is its home turf.</li>
+    <li><strong>"I want a rich dashboard while I work, terminal is fine"</strong> → Claude-Code-Usage-Monitor. Mature, actively maintained, good forecasting.</li>
+    <li><strong>"I track a dozen different AI providers"</strong> → CodexBar. Breadth is its thing.</li>
+    <li><strong>"I run Claude and Codex, sometimes several accounts, and I just want to see the walls coming"</strong> → AI Status Bar. Two providers, every account in its own row, live percentages and reset clocks, a warning before you hit 90%.</li>
+    <li><strong>"I check once a day and don't want more software"</strong> → the built-in <code>/usage</code> is genuinely enough.</li>
+  </ul>
+
+  <div class="cta-box">
+    <img class="cta-icon" src="/assets/icon.png" alt="AI Status Bar icon" width="52" height="52" />
+    <div class="cta-text">
+      <strong>Both providers, every account, zero commands</strong>
+      <span>AI Status Bar puts your Claude and Codex windows in the menu bar with reset times and alerts. Free &amp; open source, notarized by Apple.</span>
+    </div>
+    <a class="btn btn-primary" href="/#get" data-umami-event="guide-cta" data-umami-event-guide="trackers">Download for macOS</a>
+  </div>
+
+  <h2>FAQ</h2>
+  <details><summary>Why do log-based trackers disagree with /usage?</summary>
+  <p>Local logs only see what happened on this machine in Claude Code. Your plan's budget also counts claude.ai chat and other devices, and Anthropic's metering weighs models and cache reads differently than raw token counts. Log-derived percentages are estimates; live tools read the same numbers <code>/usage</code> shows.</p></details>
+  <details><summary>Do any of these tools consume my quota by polling?</summary>
+  <p>No — usage numbers are metadata, not model requests. Checking them doesn't burn tokens or count against your windows.</p></details>
+  <details><summary>What about Windows and Linux?</summary>
+  <p>ccusage and Claude-Code-Usage-Monitor are cross-platform. The menu-bar options on this list, including AI Status Bar, are macOS-native.</p></details>
+
+  <div class="related">
+    <h2>Related guides</h2>
+    <div class="guide-cards">
+      <a class="guide-card" href="/guides/ccusage-alternative/"><h3>ccusage alternative?</h3><p>Why the answer is usually "run both" — the long version.</p></a>
+      <a class="guide-card" href="/guides/claude-code-usage-limits/"><h3>Claude Code usage limits</h3><p>What the numbers these tools show actually mean.</p></a>
+    </div>
+  </div>
+</article>
+</main>
+
+<footer class="footer">
+  <a class="brand brand-sm" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <span class="footer-links">
+    <a href="/guides/">Guides</a>
+    <a href="https://github.com/sshykvlv/ai-status-bar" data-umami-event="github">GitHub</a>
+    <a href="mailto:app@ykv.lv">app@ykv.lv</a>
+  </span>
+</footer>
+
+</body>
+</html>

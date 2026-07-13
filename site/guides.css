@@ -1,0 +1,80 @@
+/* Guides — article layout on top of the landing design system (styles.css). */
+
+.article { max-width: 760px; margin: 0 auto; padding: 24px 0 60px; }
+.article h1 { font-size: clamp(30px, 4.6vw, 42px); line-height: 1.12; margin: 18px 0 10px; }
+.article .lede { margin: 0 0 8px; text-align: left; max-width: none; }
+
+.verified {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 13.5px; color: var(--dim);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 999px;
+  padding: 5px 13px; margin: 10px 0 4px;
+}
+.verified .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+
+.article h2 { font-size: 24px; margin: 42px 0 12px; }
+.article h3 { font-size: 18.5px; margin: 28px 0 10px; }
+.article p { margin: 0 0 14px; color: var(--text); }
+.article p.dim, .article li.dim { color: var(--dim); }
+.article ul, .article ol { margin: 0 0 16px 22px; }
+.article li { margin-bottom: 7px; }
+.article code {
+  font: 500 14px/1.4 "SF Mono", ui-monospace, Menlo, monospace;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; padding: 1.5px 6px;
+}
+.article a.inline { color: var(--amber-text); border-bottom: 1px solid rgba(185, 122, 16, .35); }
+.article a.inline:hover { border-bottom-color: var(--amber-text); }
+
+/* Tables — the money content. Scroll inside, never the page. */
+.tablewrap { overflow-x: auto; margin: 0 0 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.article table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+.article th, .article td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.article thead th { font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--faint); background: var(--panel-2); }
+.article tbody tr:last-child td { border-bottom: none; }
+.article td.yes { color: var(--green); font-weight: 600; }
+.article td.no { color: var(--faint); }
+.article .tnum { font-variant-numeric: tabular-nums; }
+.badge-official, .badge-community {
+  display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .03em;
+  border-radius: 5px; padding: 1px 7px; vertical-align: 1px; margin-left: 6px;
+}
+.badge-official { color: var(--green); background: rgba(79, 196, 111, .12); }
+.badge-community { color: var(--amber-text); background: rgba(245, 169, 61, .14); }
+
+/* CTA */
+.cta-box {
+  display: flex; gap: 18px; align-items: center; flex-wrap: wrap;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 20px 22px; margin: 26px 0;
+}
+.cta-box .cta-icon { width: 52px; height: 52px; border-radius: 12px; border: 1px solid var(--line); flex: none; }
+.cta-box .cta-text { flex: 1; min-width: 220px; }
+.cta-box .cta-text strong { display: block; margin-bottom: 3px; }
+.cta-box .cta-text span { color: var(--dim); font-size: 14.5px; }
+
+/* FAQ reuses landing's <details> look */
+.article details { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 15px 19px; margin-bottom: 10px; }
+.article summary { cursor: pointer; font-weight: 600; font-size: 15.5px; }
+.article details p { margin: 10px 0 2px; color: var(--dim); }
+
+/* Changelog / freshness log */
+.changelog { border-left: 3px solid var(--amber); padding: 2px 0 2px 16px; margin: 0 0 18px; }
+.changelog li { list-style: none; margin-bottom: 8px; color: var(--dim); font-size: 14.5px; }
+.changelog li b { color: var(--text); font-weight: 600; }
+
+/* Guides index cards + breadcrumbs + related */
+.crumbs { font-size: 13.5px; color: var(--faint); margin-top: 18px; }
+.crumbs a:hover { color: var(--text); }
+.guide-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 22px 0 40px; }
+.guide-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; transition: border-color .15s, transform .12s; }
+.guide-card:hover { border-color: var(--amber); transform: translateY(-1px); }
+.guide-card h3 { margin: 0 0 6px; font-size: 16.5px; }
+.guide-card p { color: var(--dim); font-size: 14px; margin: 0; }
+.related { margin: 40px 0 0; padding-top: 18px; border-top: 1px solid var(--line); }
+.related h2 { font-size: 17px; margin: 0 0 12px; }
+
+@media (max-width: 640px) {
+  .guide-cards { grid-template-columns: 1fr; }
+  .article th, .article td { padding: 9px 10px; font-size: 13.5px; }
+}

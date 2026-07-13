@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Codex CLI Usage Limits: 5-Hour Window, Weekly Cap &amp; Credits (2026)</title>
+<meta name="description" content="How OpenAI Codex usage limits work in 2026: the 5-hour window, the weekly cap, how credits are counted per model, exact limit messages, and how to check your remaining quota." />
+<link rel="canonical" href="https://aistatusbar.ykv.lv/guides/codex-cli-usage-limits/" />
+<meta property="og:title" content="Codex CLI Usage Limits Explained (2026)" />
+<meta property="og:description" content="The 5-hour window, weekly cap and the credits system — one page, kept current." />
+<meta property="og:image" content="https://aistatusbar.ykv.lv/assets/og.png" />
+<meta property="og:url" content="https://aistatusbar.ykv.lv/guides/codex-cli-usage-limits/" />
+<meta property="og:type" content="article" />
+<meta name="theme-color" content="#eef0f3" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="stylesheet" href="/guides.css" />
+<script defer src="https://stats.ykv.lv/script.js" data-website-id="6cb26f94-9604-4eef-96fb-fe29b905bd7e"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Codex CLI Usage Limits: 5-Hour Window, Weekly Cap & Credits",
+  "datePublished": "2026-07-13",
+  "dateModified": "2026-07-13",
+  "author": { "@type": "Organization", "name": "AI Status Bar" },
+  "publisher": { "@type": "Organization", "name": "AI Status Bar", "url": "https://aistatusbar.ykv.lv/" }
+}
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="bars" viewBox="0 0 24 24">
+    <rect x="3"  y="4" width="4.6" height="16" rx="2.3" fill="var(--claude)" opacity=".9"/>
+    <rect x="9.7" y="4" width="4.6" height="16" rx="2.3" fill="var(--amber)"/>
+    <rect x="16.4" y="4" width="4.6" height="16" rx="2.3" fill="var(--codex)"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <a class="nav-buy" href="/#get">Get AI Status Bar · free</a>
+</header>
+
+<main>
+<article class="article">
+  <p class="crumbs"><a href="/">Home</a> · <a href="/guides/">Guides</a> · Codex usage limits</p>
+  <h1>Codex usage limits, explained</h1>
+  <p class="lede">OpenAI's Codex CLI meters your ChatGPT plan through a 5-hour window, a weekly cap, and a credits system. Here's how the three interact, what the limit messages mean, and how to see your remaining quota.</p>
+  <span class="verified"><span class="dot"></span>Checked against official docs: July 13, 2026</span>
+
+  <p class="dim">Naming note: this page is about the <strong>Codex coding agent</strong> (CLI, IDE extension and cloud tasks) that ships with ChatGPT plans — not the deprecated 2021 "Codex" code-completion model of the same name.</p>
+
+  <h2>How the limits are structured</h2>
+  <ul>
+    <li><strong>5-hour rolling window</strong> — shared between local CLI messages and cloud tasks. <span class="badge-official">official</span></li>
+    <li><strong>Weekly cap</strong> — sits on top; resets 7 days after your first message of the week. <span class="badge-official">official</span></li>
+    <li><strong>Credits as the unit</strong> — Codex counts usage in credits tied to token consumption, and the rate depends on the model. GPT-5.6 Sol costs roughly 5× the credits of the mid-tier model per token; a typical message runs 5–40 credits. Choosing a lighter model stretches the same window dramatically. <span class="badge-official">official</span></li>
+  </ul>
+  <ul class="changelog">
+    <li><b>Jul 12–13, 2026</b> — after the GPT-5.6 Sol launch doubled traffic, OpenAI <b>temporarily removed the 5-hour limit</b> for Plus/Business/Pro; the weekly cap is currently the only ceiling. Announced by an OpenAI staff member as temporary, no end date given — it can return at any moment.</li>
+  </ul>
+
+  <h2>Limits by plan</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Plan</th><th>Price</th><th>Codex access</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Free / Go</td><td class="tnum">$0</td><td>Yes, reduced</td><td>Lighter default model, smaller windows; no credit top-up — hitting the wall offers an upgrade, not a purchase</td></tr>
+      <tr><td>Plus</td><td class="tnum">$20/mo</td><td class="yes">Full</td><td>5-hour window + weekly cap; can buy extra credits and enable auto top-up</td></tr>
+      <tr><td>Pro (5x)</td><td class="tnum">from $100/mo</td><td class="yes">Full, 5× Plus</td><td>Same structure, bigger buckets</td></tr>
+      <tr><td>Pro (20x)</td><td class="tnum">higher tier</td><td class="yes">Full, 20× Plus</td><td>For sustained heavy agent use</td></tr>
+    </tbody>
+  </table></div>
+  <p class="dim">OpenAI publishes multipliers and credit rates rather than absolute hour counts; effective capacity depends on which model you run. The definitive numbers for your account are on <code>chatgpt.com/codex/settings/usage</code>.</p>
+
+  <h2>What happens when you hit the limit</h2>
+  <p>Real messages users see (wording varies slightly by plan and surface):</p>
+  <ul>
+    <li><code>You've hit your usage limit. Upgrade to Pro or try again in 3 days 13 hours 6 minutes.</code></li>
+    <li><code>You've hit your usage limit. Visit codex/settings/usage to purchase more credits or try again at 9:01 PM.</code></li>
+    <li>On Free/Go: <code>You've hit your usage limit. Upgrade to Plus to continue using Codex</code> — lower tiers can't buy credits at all.</li>
+  </ul>
+  <p>Plus and Pro can buy extra credits or switch on <strong>Auto top-up</strong> in Codex Settings → Usage. There are also documented mismatch bugs — reports of "usage limit reached" while the dashboard shows quota remaining — which is exactly why an independent eye on the numbers helps.</p>
+
+  <h2>How to check your remaining quota</h2>
+  <ol>
+    <li><strong>In the CLI:</strong> <code>/status</code> during a session — 5-hour and weekly remainders, model and plan, reset countdowns.</li>
+    <li><strong>On the web:</strong> <code>chatgpt.com/codex/settings/usage</code> — the official dashboard (it's the URL Codex's own error messages point to).</li>
+    <li><strong>Status line:</strong> add <code>five-hour-limit</code> / <code>weekly-limit</code> to <code>tui.status_line</code> in <code>~/.codex/config.toml</code>.</li>
+    <li><strong>Passively:</strong> keep it in the menu bar. AI Status Bar reads your existing local Codex login and shows both windows without you running anything.</li>
+  </ol>
+  <p class="dim">Note: <code>~/.codex/auth.json</code> holds your session credentials, not a local quota ledger — any tool showing live numbers is fetching them from OpenAI with your login, there is no offline source of truth.</p>
+
+  <div class="cta-box">
+    <img class="cta-icon" src="/assets/icon.png" alt="AI Status Bar icon" width="52" height="52" />
+    <div class="cta-text">
+      <strong>Codex and Claude limits in one glance</strong>
+      <span>AI Status Bar picks up your local Codex login and your Claude accounts, and shows every 5-hour window and weekly cap live in the macOS menu bar. Free &amp; open source.</span>
+    </div>
+    <a class="btn btn-primary" href="/#get" data-umami-event="guide-cta" data-umami-event-guide="codex-limits">Download for macOS</a>
+  </div>
+
+  <h2>FAQ</h2>
+  <details><summary>Do local CLI usage and cloud tasks share the same limit?</summary>
+  <p>Yes — the 5-hour window covers both local messages and cloud tasks on your plan.</p></details>
+  <details><summary>Does model choice change how fast I burn quota?</summary>
+  <p>Dramatically. Credits per token differ roughly 5× between the top model and the mid-tier one — running a lighter model is the single biggest lever for stretching your window.</p></details>
+  <details><summary>Is the 5-hour limit gone for good?</summary>
+  <p>No — the July 2026 removal is explicitly temporary, a capacity response to the GPT-5.6 Sol launch rush. Plan for it to come back.</p></details>
+  <details><summary>Codex says I hit the limit but my dashboard shows quota left. What gives?</summary>
+  <p>Known reports of exactly this mismatch exist on OpenAI's tracker. Retry after a few minutes, check the web dashboard, and if it persists, it's a bug worth reporting — not your quota lying to you.</p></details>
+
+  <div class="related">
+    <h2>Related guides</h2>
+    <div class="guide-cards">
+      <a class="guide-card" href="/guides/claude-vs-codex-limits/"><h3>Claude vs Codex limits</h3><p>Both quota systems side by side, and how to ride two horses.</p></a>
+      <a class="guide-card" href="/guides/claude-code-usage-limits/"><h3>Claude Code usage limits</h3><p>The Anthropic side: 5-hour window, weekly cap, Opus budget.</p></a>
+    </div>
+  </div>
+</article>
+</main>
+
+<footer class="footer">
+  <a class="brand brand-sm" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <span class="footer-links">
+    <a href="/guides/">Guides</a>
+    <a href="https://github.com/sshykvlv/ai-status-bar" data-umami-event="github">GitHub</a>
+    <a href="mailto:app@ykv.lv">app@ykv.lv</a>
+  </span>
+</footer>
+
+</body>
+</html>

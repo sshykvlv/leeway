@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ccusage Alternative: Menu Bar vs Terminal for Claude Usage Tracking</title>
+<meta name="description" content="ccusage is a great CLI for analyzing Claude Code token history — but it can't show your live remaining quota. When a menu-bar tracker fits better, when the terminal wins, and why running both is the real answer." />
+<link rel="canonical" href="https://aistatusbar.ykv.lv/guides/ccusage-alternative/" />
+<meta property="og:title" content="ccusage Alternative: Menu Bar vs Terminal Tracking" />
+<meta property="og:description" content="Historical token analytics vs live quota in the menu bar — different jobs, honest comparison." />
+<meta property="og:image" content="https://aistatusbar.ykv.lv/assets/og.png" />
+<meta property="og:url" content="https://aistatusbar.ykv.lv/guides/ccusage-alternative/" />
+<meta property="og:type" content="article" />
+<meta name="theme-color" content="#eef0f3" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="stylesheet" href="/guides.css" />
+<script defer src="https://stats.ykv.lv/script.js" data-website-id="6cb26f94-9604-4eef-96fb-fe29b905bd7e"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "ccusage Alternative: Menu Bar vs Terminal for Claude Usage Tracking",
+  "datePublished": "2026-07-13",
+  "dateModified": "2026-07-13",
+  "author": { "@type": "Organization", "name": "AI Status Bar" },
+  "publisher": { "@type": "Organization", "name": "AI Status Bar", "url": "https://aistatusbar.ykv.lv/" }
+}
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="bars" viewBox="0 0 24 24">
+    <rect x="3"  y="4" width="4.6" height="16" rx="2.3" fill="var(--claude)" opacity=".9"/>
+    <rect x="9.7" y="4" width="4.6" height="16" rx="2.3" fill="var(--amber)"/>
+    <rect x="16.4" y="4" width="4.6" height="16" rx="2.3" fill="var(--codex)"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <a class="nav-buy" href="/#get">Get AI Status Bar · free</a>
+</header>
+
+<main>
+<article class="article">
+  <p class="crumbs"><a href="/">Home</a> · <a href="/guides/">Guides</a> · ccusage alternative</p>
+  <h1>Looking for a ccusage alternative? Read this first</h1>
+  <p class="lede">ccusage is genuinely good at what it does. The question is whether what it does — historical token analytics in the terminal — is what you actually came for. Half the people searching "ccusage" really want something else: the number that says how far from the wall they are, right now.</p>
+  <span class="verified"><span class="dot"></span>Checked: July 13, 2026</span>
+
+  <h2>What ccusage is great at</h2>
+  <p><a class="inline" href="https://github.com/ccusage/ccusage">ccusage</a> (17k+ GitHub stars) parses the local JSONL logs that coding agents write and turns them into reports: tokens per day, per project, per model, estimated cost in dollars. It's fast, it works offline, it covers a long list of tools beyond Claude Code, and for questions like "how many tokens did this refactor eat" or "what would my usage cost at API prices" it has no equal. If you live in the terminal and want retrospective analytics, keep it. Seriously.</p>
+
+  <h2>What a log analyzer structurally can't do</h2>
+  <p>ccusage reads what already happened on your disk. Your actual quota lives on Anthropic's side, so a few things are out of reach for any log-based tool:</p>
+  <ul>
+    <li><strong>Live remaining quota.</strong> Token history can't tell you what percentage of your 5-hour window or weekly cap is left — plans are metered by Anthropic, not by local token counts.</li>
+    <li><strong>Reset times.</strong> When does your window come back? The logs don't know.</li>
+    <li><strong>Warnings.</strong> A CLI report can't tap you on the shoulder at 90% while you're deep in a task in another window.</li>
+    <li><strong>The passive glance.</strong> You have to remember to run it. The moment you most need the number — mid-flow, about to fire a big job — is exactly when you won't.</li>
+  </ul>
+
+  <h2>The honest comparison</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th></th><th>ccusage</th><th>Claude-Code-Usage-Monitor</th><th>AI Status Bar</th></tr></thead>
+    <tbody>
+      <tr><td>Format</td><td>CLI reports</td><td>Terminal dashboard</td><td>macOS menu bar</td></tr>
+      <tr><td>Data source</td><td>Local JSONL logs</td><td>Local JSONL logs</td><td>Live usage data for your logged-in accounts</td></tr>
+      <tr><td>Live 5h + weekly %</td><td class="no">No</td><td>Estimated from logs</td><td class="yes">Yes</td></tr>
+      <tr><td>Reset countdowns</td><td class="no">No</td><td>Estimated</td><td class="yes">Yes</td></tr>
+      <tr><td>Historical cost analytics</td><td class="yes">Excellent</td><td>Good</td><td class="no">No</td></tr>
+      <tr><td>Notifications near the limit</td><td class="no">No</td><td>In-terminal</td><td class="yes">System notifications (80/90%)</td></tr>
+      <tr><td>Multi-account</td><td>Partial (logs)</td><td class="no">No</td><td class="yes">Yes, first-class</td></tr>
+      <tr><td>Codex too</td><td>Historical</td><td class="no">No</td><td class="yes">Yes, live</td></tr>
+      <tr><td>Price</td><td>Free, OSS</td><td>Free, OSS</td><td>Free, OSS</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>The actual answer: run both</h2>
+  <p>These tools don't compete for the same job:</p>
+  <ul>
+    <li><strong>ccusage weekly</strong> — retrospective: which projects and models eat your budget, what it would cost at API prices, whether your plan still makes sense.</li>
+    <li><strong>AI Status Bar always</strong> — live: how much window is left right now, when it resets, a warning before you slam into the wall mid-task.</li>
+  </ul>
+  <p>Five-minute setup for the pair:</p>
+  <ol>
+    <li><code>npx ccusage@latest</code> — instant report, nothing to install.</li>
+    <li><a class="inline" href="/#get">Download AI Status Bar</a> (or <code>brew install --cask sshykvlv/tap/ai-status-bar</code>) — your accounts appear in the menu bar automatically.</li>
+  </ol>
+
+  <div class="cta-box">
+    <img class="cta-icon" src="/assets/icon.png" alt="AI Status Bar icon" width="52" height="52" />
+    <div class="cta-text">
+      <strong>The live half of your usage toolkit</strong>
+      <span>Every Claude account and Codex — 5-hour window, weekly cap, reset times — one glance at the menu bar. Free &amp; open source, notarized by Apple.</span>
+    </div>
+    <a class="btn btn-primary" href="/#get" data-umami-event="guide-cta" data-umami-event-guide="ccusage-alt">Download for macOS</a>
+  </div>
+
+  <h2>FAQ</h2>
+  <details><summary>Is AI Status Bar a replacement for ccusage?</summary>
+  <p>No — it replaces checking your quota by hand, not token analytics. If you want cost breakdowns per project, ccusage remains the tool. If you want to stop being surprised by <code>You've hit your session limit</code>, that's us.</p></details>
+  <details><summary>Why do ccusage numbers differ from my actual limit?</summary>
+  <p>ccusage counts tokens from local logs; Anthropic meters your plan on their side, factoring model, cache reads and surfaces beyond Claude Code (claude.ai chat counts against the same budget). Log-derived estimates drift from the real percentage — which is why live quota needs a live source.</p></details>
+  <details><summary>Does AI Status Bar do cost estimates?</summary>
+  <p>No, and by design — ccusage already does that superbly. We show the numbers that expire: window percentages and reset clocks.</p></details>
+
+  <div class="related">
+    <h2>Related guides</h2>
+    <div class="guide-cards">
+      <a class="guide-card" href="/guides/claude-code-usage-trackers/"><h3>Best Claude Code usage trackers</h3><p>The full landscape: 7 tools compared.</p></a>
+      <a class="guide-card" href="/guides/claude-code-usage-limits/"><h3>Claude Code usage limits</h3><p>What the 5-hour window and weekly cap actually are.</p></a>
+    </div>
+  </div>
+</article>
+</main>
+
+<footer class="footer">
+  <a class="brand brand-sm" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <span class="footer-links">
+    <a href="/guides/">Guides</a>
+    <a href="https://github.com/sshykvlv/ai-status-bar" data-umami-event="github">GitHub</a>
+    <a href="mailto:app@ykv.lv">app@ykv.lv</a>
+  </span>
+</footer>
+
+</body>
+</html>

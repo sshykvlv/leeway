@@ -43,6 +43,9 @@ em { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 40
   display: flex; justify-content: space-between; align-items: center;
   max-width: 980px; margin: 0 auto; padding: 18px 20px;
 }
+.nav-links { margin-left: auto; margin-right: 18px; }
+.nav-links a { font-size: 14px; font-weight: 600; color: var(--dim); transition: color .15s; }
+.nav-links a:hover { color: var(--text); }
 .brand { display: inline-flex; align-items: center; gap: 9px; }
 .brand-mark { width: 20px; height: 20px; color: var(--text); }
 .brand-mark .bars-low { fill: var(--amber); }

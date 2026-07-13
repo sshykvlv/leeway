@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Claude Pro vs Max vs Max 20x: Limits Compared (2026)</title>
+<meta name="description" content="Claude Pro ($20), Max 5x ($100) and Max 20x ($200) compared by what actually matters: usage limits, Opus access, and whether the upgrade pays for itself. With break-even math against API pricing." />
+<link rel="canonical" href="https://aistatusbar.ykv.lv/guides/claude-pro-vs-max-20x/" />
+<meta property="og:title" content="Claude Pro vs Max vs Max 20x: Limits Compared" />
+<meta property="og:description" content="Which Claude plan fits your real usage — with break-even math, not vibes." />
+<meta property="og:image" content="https://aistatusbar.ykv.lv/assets/og.png" />
+<meta property="og:url" content="https://aistatusbar.ykv.lv/guides/claude-pro-vs-max-20x/" />
+<meta property="og:type" content="article" />
+<meta name="theme-color" content="#eef0f3" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="stylesheet" href="/guides.css" />
+<script defer src="https://stats.ykv.lv/script.js" data-website-id="6cb26f94-9604-4eef-96fb-fe29b905bd7e"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Claude Pro vs Max vs Max 20x: Limits Compared",
+  "datePublished": "2026-07-13",
+  "dateModified": "2026-07-13",
+  "author": { "@type": "Organization", "name": "AI Status Bar" },
+  "publisher": { "@type": "Organization", "name": "AI Status Bar", "url": "https://aistatusbar.ykv.lv/" }
+}
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="bars" viewBox="0 0 24 24">
+    <rect x="3"  y="4" width="4.6" height="16" rx="2.3" fill="var(--claude)" opacity=".9"/>
+    <rect x="9.7" y="4" width="4.6" height="16" rx="2.3" fill="var(--amber)"/>
+    <rect x="16.4" y="4" width="4.6" height="16" rx="2.3" fill="var(--codex)"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <a class="nav-buy" href="/#get">Get AI Status Bar · free</a>
+</header>
+
+<main>
+<article class="article">
+  <p class="crumbs"><a href="/">Home</a> · <a href="/guides/">Guides</a> · Claude Pro vs Max</p>
+  <h1>Claude Pro vs Max vs Max 20x: which plan do you actually need?</h1>
+  <p class="lede">The honest version of this comparison: it depends on one number — how much of your current plan you actually use. Here's how to find that number, plus the break-even math.</p>
+  <span class="verified"><span class="dot"></span>Checked against official docs: July 13, 2026</span>
+
+  <h2>The plans at a glance</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Plan</th><th>Price</th><th>Multiplier vs Pro</th><th>Opus</th><th>Weekly Sonnet estimate*</th><th>Weekly Opus estimate*</th></tr></thead>
+    <tbody>
+      <tr><td>Pro</td><td class="tnum">$20/mo</td><td class="tnum">1×</td><td class="no">No</td><td class="tnum">40–80 h</td><td class="no">—</td></tr>
+      <tr><td>Max 5x</td><td class="tnum">$100/mo</td><td class="tnum">5×</td><td class="yes">Yes</td><td class="tnum">140–280 h</td><td class="tnum">15–35 h</td></tr>
+      <tr><td>Max 20x</td><td class="tnum">$200/mo</td><td class="tnum">20×</td><td class="yes">Yes</td><td class="tnum">240–480 h</td><td class="tnum">24–40 h</td></tr>
+    </tbody>
+  </table></div>
+  <p class="dim">* Anthropic's August 2025 launch estimates — the only official numbers ever published, and limits have been raised repeatedly since (5-hour limits doubled in May 2026, weekly limits currently boosted 50% through July 19, 2026). Full history in the <a class="inline" href="/guides/claude-code-usage-limits/">limits guide</a>.</p>
+  <p>Structurally the plans are identical: a rolling 5-hour window plus a weekly cap, shared across claude.ai and Claude Code. Max adds Opus access with its own separate weekly Opus budget. What you buy with the upgrade is <em>headroom</em>, not features.</p>
+
+  <h2>Is Max 20x worth $200? The break-even math</h2>
+  <p>Since 2026, there's a third option that changes the decision: <strong>usage credits</strong>. On any paid plan you can run <code>/usage-credits</code> and keep working past your limit at standard API rates. That gives a clean break-even test:</p>
+  <ul>
+    <li>If you hit Pro's ceiling occasionally — buying the occasional $10–20 of usage credits on Pro is cheaper than jumping to Max 5x ($80/mo more).</li>
+    <li>If you're buying credits <em>every week</em>, or you routinely stall mid-project waiting for resets — the Max 5x flat rate wins, and you get Opus.</li>
+    <li>Max 20x is for people who hit Max 5x's weekly ceiling. If you've never seen the <code>You've hit your weekly limit</code> message on 5x, 20x buys you nothing but peace of mind.</li>
+  </ul>
+  <p class="dim">Heavy-user forum math regularly shows Max 20x consuming several times $200 worth of API-priced tokens, so if you genuinely max it out, the subscription is dramatically cheaper than pay-as-you-go. The waste is in upgrading before you've measured.</p>
+
+  <h2>How to decide with data instead of vibes</h2>
+  <ol>
+    <li><strong>Measure two weeks.</strong> Watch your 5-hour and weekly percentages while you work normally. If your weekly usage never crosses ~70%, stay put.</li>
+    <li><strong>Count the walls.</strong> Every <code>You've hit your session limit</code> is a 5-hour problem (annoying, free to wait out). Every <code>weekly limit</code> is a plan-size problem (that's what upgrades fix).</li>
+    <li><strong>Check which limit binds.</strong> If only your Opus budget dies while Sonnet headroom remains, the fix might be using Opus more selectively (<code>/model</code>), not paying $100 more per month.</li>
+  </ol>
+
+  <div class="cta-box">
+    <img class="cta-icon" src="/assets/icon.png" alt="AI Status Bar icon" width="52" height="52" />
+    <div class="cta-text">
+      <strong>Measure before you upgrade</strong>
+      <span>AI Status Bar keeps your 5-hour and weekly percentages in the menu bar. Watch them for two weeks — then you'll know if $100 or $200 a month actually buys you anything. Free &amp; open source.</span>
+    </div>
+    <a class="btn btn-primary" href="/#get" data-umami-event="guide-cta" data-umami-event-guide="pro-vs-max">Download for macOS</a>
+  </div>
+
+  <h2>FAQ</h2>
+  <details><summary>Does Max 20x literally mean 20× the usage?</summary>
+  <p>It's Anthropic's own multiplier label relative to Pro, and the published hour ranges roughly track it. In practice throughput also depends on model choice, message size and codebase context, so treat it as an order-of-magnitude promise, not a metered guarantee.</p></details>
+  <details><summary>Can I switch plans mid-month?</summary>
+  <p>Yes, upgrades take effect immediately (prorated). A common pattern is upgrading for a crunch month and dropping back after shipping.</p></details>
+  <details><summary>Do Max plans have peak-hour restrictions?</summary>
+  <p>Not anymore — peak-hours reductions were removed for Pro and Max in the May 6, 2026 capacity update.</p></details>
+  <details><summary>Is there a Team option?</summary>
+  <p>Yes — Team and Enterprise plans have per-seat limits and admin-managed extra usage. The mechanics (5-hour window + weekly cap) are the same.</p></details>
+
+  <div class="related">
+    <h2>Related guides</h2>
+    <div class="guide-cards">
+      <a class="guide-card" href="/guides/claude-code-usage-limits/"><h3>Claude Code usage limits</h3><p>The flagship reference: windows, caps, resets, exact messages.</p></a>
+      <a class="guide-card" href="/guides/claude-code-usage-trackers/"><h3>Best Claude Code usage trackers</h3><p>7 tools compared for measuring your real usage.</p></a>
+    </div>
+  </div>
+</article>
+</main>
+
+<footer class="footer">
+  <a class="brand brand-sm" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <span class="footer-links">
+    <a href="/guides/">Guides</a>
+    <a href="https://github.com/sshykvlv/ai-status-bar" data-umami-event="github">GitHub</a>
+    <a href="mailto:app@ykv.lv">app@ykv.lv</a>
+  </span>
+</footer>
+
+</body>
+</html>

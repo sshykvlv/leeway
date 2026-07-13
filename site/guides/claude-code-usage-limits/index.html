@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Claude Code Usage Limits Explained: 5-Hour Window &amp; Weekly Cap (2026)</title>
+<meta name="description" content="How Claude Code usage limits actually work in 2026: the rolling 5-hour window, the weekly cap, the separate Opus limit, exact limit messages, what resets when — and how to watch your remaining quota live." />
+<link rel="canonical" href="https://aistatusbar.ykv.lv/guides/claude-code-usage-limits/" />
+<meta property="og:title" content="Claude Code Usage Limits Explained (2026)" />
+<meta property="og:description" content="The 5-hour window, the weekly cap, the separate Opus limit — one page, kept current." />
+<meta property="og:image" content="https://aistatusbar.ykv.lv/assets/og.png" />
+<meta property="og:url" content="https://aistatusbar.ykv.lv/guides/claude-code-usage-limits/" />
+<meta property="og:type" content="article" />
+<meta name="theme-color" content="#eef0f3" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="stylesheet" href="/guides.css" />
+<script defer src="https://stats.ykv.lv/script.js" data-website-id="6cb26f94-9604-4eef-96fb-fe29b905bd7e"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Claude Code Usage Limits Explained: 5-Hour Window & Weekly Cap",
+  "datePublished": "2026-07-13",
+  "dateModified": "2026-07-13",
+  "author": { "@type": "Organization", "name": "AI Status Bar" },
+  "publisher": { "@type": "Organization", "name": "AI Status Bar", "url": "https://aistatusbar.ykv.lv/" }
+}
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="bars" viewBox="0 0 24 24">
+    <rect x="3"  y="4" width="4.6" height="16" rx="2.3" fill="var(--claude)" opacity=".9"/>
+    <rect x="9.7" y="4" width="4.6" height="16" rx="2.3" fill="var(--amber)"/>
+    <rect x="16.4" y="4" width="4.6" height="16" rx="2.3" fill="var(--codex)"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <a class="nav-buy" href="/#get">Get AI Status Bar · free</a>
+</header>
+
+<main>
+<article class="article">
+  <p class="crumbs"><a href="/">Home</a> · <a href="/guides/">Guides</a> · Claude Code usage limits</p>
+  <h1>Claude Code usage limits, explained</h1>
+  <p class="lede">The rolling 5-hour window, the weekly cap, the separate Opus limit — how they actually work, what the limit messages mean, and when things reset.</p>
+  <span class="verified"><span class="dot"></span>Checked against official docs: July 13, 2026</span>
+
+  <h2>The two limits (plus one for Opus)</h2>
+  <p>Every Claude subscription — Free, Pro, Max — has <strong>two independent usage limits</strong>, and they are shared across claude.ai, Claude Code and the desktop app. One usage budget, all surfaces:</p>
+  <ul>
+    <li><strong>5-hour window</strong> — rolling. It starts with your first message, not at midnight and not on a fixed schedule. Five hours after that first message, the window resets. <span class="badge-official">official</span></li>
+    <li><strong>Weekly cap</strong> — a second ceiling on top, introduced in August 2025. It resets every 7 days at a fixed time for your account (shown in Settings → Usage). <span class="badge-official">official</span></li>
+    <li><strong>Opus weekly limit</strong> — on Max plans, Opus has its own weekly budget with its own reset timer, separate from the all-models limit. Max plans also track a Sonnet-only weekly limit separately. <span class="badge-official">official</span></li>
+  </ul>
+  <p class="dim">Terminology note: these subscription <em>usage limits</em> are not the same thing as API <em>rate limits</em> (requests-per-minute for pay-as-you-go API keys). Anthropic's error reference explicitly separates the two — if you're being throttled on an API key, that's a different page of the docs.</p>
+
+  <h2>Limits by plan</h2>
+  <p>Anthropic deliberately doesn't publish fixed hour counts as a guarantee — capacity varies with message length, model, and codebase size. The most concrete official numbers ever given were the launch estimates from August 2025, and limits have only been raised since:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Plan</th><th>Price</th><th>Weekly Sonnet estimate*</th><th>Weekly Opus estimate*</th><th>Opus access</th></tr></thead>
+    <tbody>
+      <tr><td>Free</td><td class="tnum">$0</td><td>~15–40 messages per 5-hour window <span class="badge-community">community</span></td><td class="no">—</td><td class="no">No</td></tr>
+      <tr><td>Pro</td><td class="tnum">$20/mo</td><td class="tnum">40–80 h</td><td class="no">—</td><td class="no">No</td></tr>
+      <tr><td>Max 5x</td><td class="tnum">$100/mo</td><td class="tnum">140–280 h</td><td class="tnum">15–35 h</td><td class="yes">Yes</td></tr>
+      <tr><td>Max 20x</td><td class="tnum">$200/mo</td><td class="tnum">240–480 h</td><td class="tnum">24–40 h</td><td class="yes">Yes</td></tr>
+    </tbody>
+  </table></div>
+  <p class="dim">* August 2025 launch estimates from Anthropic's announcement — treat as a floor, not a promise. See the change log below: 5-hour limits have been doubled and weekly limits boosted since.</p>
+
+  <h2>2026 limit changes — the log</h2>
+  <p>Anthropic moves these numbers regularly, usually upward, sometimes as time-boxed promotions. This log is why this page has a "checked" date:</p>
+  <ul class="changelog">
+    <li><b>Jul 13, 2026</b> — the +50% weekly-limit promotion for Claude Code was <b>extended to July 19, 23:59 PT</b>. Applies automatically to Pro, Max, Team and seat-based Enterprise; Claude Code only (not claude.ai chat).</li>
+    <li><b>May 13, 2026</b> — weekly Claude Code limits raised 50% as a promotion (originally through July 13).</li>
+    <li><b>May 6, 2026</b> — 5-hour limits <b>doubled</b> for Pro/Max/Team, peak-hours reductions removed, Opus API rate limits raised, on the back of Anthropic's SpaceX compute deal.</li>
+    <li><b>Aug 28, 2025</b> — weekly caps introduced (the launch estimates in the table above). Anthropic said fewer than 5% of subscribers would notice.</li>
+  </ul>
+
+  <h2>What happens when you hit a limit</h2>
+  <p>Claude Code tells you exactly which ceiling you hit — these are the real messages from the official error reference:</p>
+  <ul>
+    <li><code>You've hit your session limit · resets 3:45pm</code> — the 5-hour window. Applies to all models; switching models won't help. Wait for the reset.</li>
+    <li><code>You've hit your weekly limit · resets Mon 12:00am</code> — the weekly cap. Also model-independent.</li>
+    <li><code>You've hit your Opus limit · resets 3:45pm</code> — only Opus is blocked. Run <code>/model</code> and switch to Sonnet to keep working.</li>
+  </ul>
+  <p>Since 2026 you can also <strong>buy extra usage</strong> instead of waiting: <code>/usage-credits</code> enables opt-in usage credits on Pro and Max plans, billed at standard API rates (with a configurable monthly cap and a $2,000/day ceiling).</p>
+
+  <h2>"Why did my limit reset earlier / later than I expected?"</h2>
+  <ul>
+    <li>The 5-hour window is anchored to your <em>first message</em>, so the reset time moves around with your work pattern. Two coding sessions a day = two different reset times.</li>
+    <li>The weekly reset is fixed per account — check Settings → Usage for your exact day and time. Community measurements have sometimes observed shorter effective cycles (~72h) during promo periods, so if your weekly reset came "early", it was in your favor.</li>
+    <li>There are real bugs, too: users have reported Opus budgets draining at 16% per half-hour (GitHub issue #8449) and abnormal drain waves in March 2026. If your numbers look impossible, it's worth checking the <a class="inline" href="https://github.com/anthropics/claude-code/issues">claude-code issue tracker</a> before assuming you burned it all.</li>
+  </ul>
+
+  <h2>How to check your usage right now</h2>
+  <ol>
+    <li><strong>In Claude Code:</strong> run <code>/usage</code> — 5-hour and weekly percentages with reset countdowns (in older builds this lived under <code>/status</code>).</li>
+    <li><strong>On the web:</strong> claude.ai → Settings → Usage — progress bars for the 5-hour window, the weekly cap, and the separate Opus reset.</li>
+    <li><strong>Desktop app:</strong> the usage ring next to the model picker.</li>
+    <li><strong>Without asking:</strong> keep it in your menu bar, permanently — that's the whole reason AI Status Bar exists.</li>
+  </ol>
+
+  <div class="cta-box">
+    <img class="cta-icon" src="/assets/icon.png" alt="AI Status Bar icon" width="52" height="52" />
+    <div class="cta-text">
+      <strong>See both limits live, before you hit the wall</strong>
+      <span>AI Status Bar shows the 5-hour window and the weekly cap for every Claude account you run — plus Codex — right in the macOS menu bar. Free &amp; open source.</span>
+    </div>
+    <a class="btn btn-primary" href="/#get" data-umami-event="guide-cta" data-umami-event-guide="claude-limits">Download for macOS</a>
+  </div>
+
+  <h2>FAQ</h2>
+  <details><summary>Do Claude Code and claude.ai share the same limit?</summary>
+  <p>Yes. Your plan has one usage budget shared across claude.ai chat, Claude Code and the desktop app. A heavy chat session eats into your coding window and vice versa.</p></details>
+  <details><summary>Does switching models reset or avoid the limit?</summary>
+  <p>The 5-hour and weekly limits count all models, so no. The one exception is the separate Opus limit: when Opus is exhausted, Sonnet still works until you hit the general ceilings.</p></details>
+  <details><summary>Are the current limits permanent?</summary>
+  <p>No — treat them as a moving target. The weekly boost running right now is a dated promotion (through July 19, 2026), and Anthropic has changed the baseline three times in 2026 alone. That's why this page carries a "checked" date and a change log.</p></details>
+  <details><summary>Can I pay to keep going after hitting the limit?</summary>
+  <p>Yes, on Pro and Max: run <code>/usage-credits</code> to enable usage credits, billed at standard API rates. On Team/Enterprise, extra usage goes through your admin.</p></details>
+  <details><summary>How do I know when my limit resets without opening anything?</summary>
+  <p>That's the menu-bar use case: <a class="inline" href="/">AI Status Bar</a> shows the exact reset time next to each window's percentage, and can notify you at 80% and 90% before you hit the wall mid-task.</p></details>
+
+  <div class="related">
+    <h2>Related guides</h2>
+    <div class="guide-cards">
+      <a class="guide-card" href="/guides/claude-pro-vs-max-20x/"><h3>Claude Pro vs Max vs Max 20x</h3><p>Which plan actually fits your usage — with break-even math.</p></a>
+      <a class="guide-card" href="/guides/claude-code-usage-trackers/"><h3>Best Claude Code usage trackers</h3><p>7 tools compared honestly: CLI, terminal dashboards, menu bar.</p></a>
+      <a class="guide-card" href="/guides/codex-cli-usage-limits/"><h3>Codex CLI usage limits</h3><p>The 5-hour window, weekly cap and credits on the OpenAI side.</p></a>
+      <a class="guide-card" href="/guides/claude-vs-codex-limits/"><h3>Claude vs Codex limits</h3><p>Both quota systems side by side, and how to ride two horses.</p></a>
+    </div>
+  </div>
+</article>
+</main>
+
+<footer class="footer">
+  <a class="brand brand-sm" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <span class="footer-links">
+    <a href="/guides/">Guides</a>
+    <a href="https://github.com/sshykvlv/ai-status-bar" data-umami-event="github">GitHub</a>
+    <a href="mailto:app@ykv.lv">app@ykv.lv</a>
+  </span>
+</footer>
+
+</body>
+</html>

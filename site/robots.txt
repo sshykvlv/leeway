@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://aistatusbar.ykv.lv/sitemap.xml

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Claude vs Codex: Usage Limits Compared Side by Side (2026)</title>
+<meta name="description" content="Claude Code and OpenAI Codex both meter you with a 5-hour window and a weekly cap — but they count differently. Side-by-side comparison, and the two-provider workflow for when one hits the wall." />
+<link rel="canonical" href="https://aistatusbar.ykv.lv/guides/claude-vs-codex-limits/" />
+<meta property="og:title" content="Claude vs Codex: Usage Limits Compared" />
+<meta property="og:description" content="Two quota systems side by side — and the workflow for riding both." />
+<meta property="og:image" content="https://aistatusbar.ykv.lv/assets/og.png" />
+<meta property="og:url" content="https://aistatusbar.ykv.lv/guides/claude-vs-codex-limits/" />
+<meta property="og:type" content="article" />
+<meta name="theme-color" content="#eef0f3" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="stylesheet" href="/guides.css" />
+<script defer src="https://stats.ykv.lv/script.js" data-website-id="6cb26f94-9604-4eef-96fb-fe29b905bd7e"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Claude vs Codex: Usage Limits Compared Side by Side",
+  "datePublished": "2026-07-13",
+  "dateModified": "2026-07-13",
+  "author": { "@type": "Organization", "name": "AI Status Bar" },
+  "publisher": { "@type": "Organization", "name": "AI Status Bar", "url": "https://aistatusbar.ykv.lv/" }
+}
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="bars" viewBox="0 0 24 24">
+    <rect x="3"  y="4" width="4.6" height="16" rx="2.3" fill="var(--claude)" opacity=".9"/>
+    <rect x="9.7" y="4" width="4.6" height="16" rx="2.3" fill="var(--amber)"/>
+    <rect x="16.4" y="4" width="4.6" height="16" rx="2.3" fill="var(--codex)"/>
+  </symbol>
+</svg>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <a class="nav-buy" href="/#get">Get AI Status Bar · free</a>
+</header>
+
+<main>
+<article class="article">
+  <p class="crumbs"><a href="/">Home</a> · <a href="/guides/">Guides</a> · Claude vs Codex limits</p>
+  <h1>Claude vs Codex: whose usage limits treat you better?</h1>
+  <p class="lede">Both agents meter you with the same two-layer scheme — a 5-hour window plus a weekly cap — but they count consumption differently, reset differently, and fail differently. Side by side:</p>
+  <span class="verified"><span class="dot"></span>Checked: July 13, 2026</span>
+
+  <h2>The two systems, one table</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th></th><th>Claude Code (Anthropic)</th><th>Codex (OpenAI)</th></tr></thead>
+    <tbody>
+      <tr><td>Short window</td><td>5-hour rolling, starts at first message</td><td>5-hour rolling <span class="badge-community">temporarily lifted since Jul 2026</span></td></tr>
+      <tr><td>Weekly cap</td><td>Fixed per-account reset time</td><td>Resets 7 days after first message of the week</td></tr>
+      <tr><td>Unit of counting</td><td>Opaque "usage" (model-, length- and cache-weighted)</td><td>Credits per token, rate depends on model (~5× spread)</td></tr>
+      <tr><td>Model-specific budget</td><td>Separate weekly Opus limit on Max</td><td>No separate budget — heavier model just burns credits faster</td></tr>
+      <tr><td>Shared with chat product</td><td>Yes — claude.ai eats the same budget</td><td>Codex quota is its own bucket within the ChatGPT plan</td></tr>
+      <tr><td>Pay to continue</td><td><code>/usage-credits</code>, API rates (Pro/Max)</td><td>Buy credits / auto top-up (Plus and up; not Free/Go)</td></tr>
+      <tr><td>Entry price with agent access</td><td class="tnum">$20 (Pro)</td><td class="tnum">$0 (Free/Go, reduced) / $20 (Plus)</td></tr>
+      <tr><td>Check remaining</td><td><code>/usage</code>, Settings → Usage</td><td><code>/status</code>, codex/settings/usage</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Which gives more work per dollar?</h2>
+  <p>Unanswerable in general — and anyone giving you a flat answer is guessing. Both vendors moved limits three-plus times in 2026 (Anthropic doubled 5-hour windows in May and is running a weekly boost right now; OpenAI lifted the 5-hour limit entirely after the GPT-5.6 Sol launch). The honest heuristics:</p>
+  <ul>
+    <li>On the OpenAI side, <strong>model choice is the big lever</strong> — the credit spread between models is ~5×, so dropping to a mid-tier model for routine work stretches the week dramatically.</li>
+    <li>On the Anthropic side, <strong>the Opus budget is the scarce resource</strong> — Sonnet headroom is much deeper, so reserving Opus for hard problems is the equivalent lever.</li>
+    <li>Promotions are real but dated — never plan capacity around a boost that expires next week.</li>
+  </ul>
+
+  <h2>The two-provider workflow</h2>
+  <p>A growing pattern (ask any "what do I do now that I'm rate-limited" thread): run both subscriptions, treat them as one pool of agent-hours. One hits a wall mid-task — you hand the branch to the other. $40/month for Claude Pro + ChatGPT Plus buys more effective throughput than $100 on either single plan, at the cost of one annoyance: <strong>you now have four quotas to track</strong> (two windows × two providers), in two different UIs, with two different reset schedules.</p>
+  <p>That bookkeeping is the entire reason AI Status Bar exists: every account of both providers in one menu, each with its 5-hour and weekly percentage and reset clock, with alerts before either wall. The switch decision becomes a glance.</p>
+
+  <div class="cta-box">
+    <img class="cta-icon" src="/assets/icon.png" alt="AI Status Bar icon" width="52" height="52" />
+    <div class="cta-text">
+      <strong>Four quotas, one glance</strong>
+      <span>Claude and Codex, every account, live windows and reset times in the macOS menu bar. Free &amp; open source.</span>
+    </div>
+    <a class="btn btn-primary" href="/#get" data-umami-event="guide-cta" data-umami-event-guide="claude-vs-codex">Download for macOS</a>
+  </div>
+
+  <h2>FAQ</h2>
+  <details><summary>Can I use one subscription's quota from the other tool?</summary>
+  <p>No — quotas are per-vendor and per-account. The two-provider workflow means two subscriptions; what you pool is your own workflow, not the billing.</p></details>
+  <details><summary>Which one should I subscribe to first?</summary>
+  <p>Whichever agent you prefer working with — limits shouldn't drive that choice at $20. The two-provider setup is for when you're already hitting one vendor's weekly cap regularly.</p></details>
+  <details><summary>Do both really use a 5-hour window?</summary>
+  <p>Yes, it's convergent design — though as of July 2026 OpenAI has temporarily suspended theirs, leaving only the weekly cap. Expect it back.</p></details>
+
+  <div class="related">
+    <h2>Related guides</h2>
+    <div class="guide-cards">
+      <a class="guide-card" href="/guides/claude-code-usage-limits/"><h3>Claude Code usage limits</h3><p>The Anthropic system in full detail.</p></a>
+      <a class="guide-card" href="/guides/codex-cli-usage-limits/"><h3>Codex usage limits</h3><p>The OpenAI system in full detail.</p></a>
+    </div>
+  </div>
+</article>
+</main>
+
+<footer class="footer">
+  <a class="brand brand-sm" href="/">
+    <svg class="brand-mark" aria-hidden="true"><use href="#bars"/></svg>
+    <span class="brand-text">AI Status <span class="brand-accent">Bar</span></span>
+  </a>
+  <span class="footer-links">
+    <a href="/guides/">Guides</a>
+    <a href="https://github.com/sshykvlv/ai-status-bar" data-umami-event="github">GitHub</a>
+    <a href="mailto:app@ykv.lv">app@ykv.lv</a>
+  </span>
+</footer>
+
+</body>
+</html>
