@@ -58,7 +58,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var menuIsOpen = false
 
     func menuWillOpen(_ menu: NSMenu) {
+        guard menu === self.menu else { return }
         menuIsOpen = true
+        // Содержимое сабменю освежается ЗДЕСЬ, до первого показа их окон.
+        // Мутация в menuNeedsUpdate (в момент раскрытия) оставляла окну сабменю
+        // старую высоту — «щель после Remove», тот же AppKit-квирк, что и щель
+        // под Quit при пересборке открытого меню (фикс v2).
+        for item in self.menu.items {
+            guard let id = item.representedObject as? UUID,
+                  let account = store.accounts.first(where: { $0.id == id }),
+                  let sub = item.submenu else { continue }
+            populateAccountSubmenu(sub, account: account)
+        }
         poller.pollNow()
     }
 
@@ -100,22 +111,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func accountSubmenu(_ account: Account) -> NSMenu {
-        let sub = NSMenu()
         // Детали окон живут в этом же сабменю (выбор владельца 12.07: «выпадает
-        // справа, как Rename/Re-login/Remove», а не системным тултипом). Состав
-        // зависит от текущего state — освежаем при каждом открытии через
-        // menuNeedsUpdate, аккаунт узнаём по identifier.
-        sub.identifier = NSUserInterfaceItemIdentifier(account.id.uuidString)
-        sub.delegate = self
+        // справа, как Rename/Re-login/Remove», а не системным тултипом).
+        // ⚠️ Никакого delegate/menuNeedsUpdate: мутация состава в момент показа
+        // ломает высоту окна сабменю; свежесть обеспечивает menuWillOpen.
+        let sub = NSMenu()
         populateAccountSubmenu(sub, account: account)
         return sub
-    }
-
-    func menuNeedsUpdate(_ menu: NSMenu) {
-        guard menu !== self.menu,
-              let raw = menu.identifier?.rawValue, let id = UUID(uuidString: raw),
-              let account = store.accounts.first(where: { $0.id == id }) else { return }
-        populateAccountSubmenu(menu, account: account)
     }
 
     private func populateAccountSubmenu(_ sub: NSMenu, account: Account) {
