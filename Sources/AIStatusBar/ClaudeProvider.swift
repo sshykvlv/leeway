@@ -23,7 +23,8 @@ struct ClaudeProvider {
         let (data, resp): (Data, URLResponse)
         do { (data, resp) = try await session.data(for: req) }
         catch { throw FetchError.network(error.localizedDescription) }
-        switch (resp as! HTTPURLResponse).statusCode {
+        guard let http = resp as? HTTPURLResponse else { throw FetchError.badResponse("non-HTTP response") }
+        switch http.statusCode {
         case 200: return try ClaudeUsageParser.parse(data)
         case 401, 403: throw FetchError.unauthorized
         case 429: throw FetchError.rateLimited
@@ -36,7 +37,8 @@ struct ClaudeProvider {
         let (data, resp): (Data, URLResponse)
         do { (data, resp) = try await session.data(for: req) }
         catch { throw FetchError.network(error.localizedDescription) }
-        switch (resp as! HTTPURLResponse).statusCode {
+        guard let http = resp as? HTTPURLResponse else { throw FetchError.badResponse("non-HTTP response") }
+        switch http.statusCode {
         case 200: return try Self.parseProfile(data)
         case 401, 403: throw FetchError.unauthorized
         case 429: throw FetchError.rateLimited
@@ -79,7 +81,7 @@ struct ClaudeProvider {
             "client_id": ClaudeOAuthConstants.clientID,
         ])
         let (data, resp) = try await session.data(for: req)
-        guard (resp as! HTTPURLResponse).statusCode == 200,
+        guard let http = resp as? HTTPURLResponse, http.statusCode == 200,
               let d = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let access = d["access_token"] as? String,
               let expiresIn = (d["expires_in"] as? NSNumber)?.doubleValue

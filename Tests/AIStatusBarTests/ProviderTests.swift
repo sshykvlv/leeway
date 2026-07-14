@@ -48,6 +48,27 @@ final class ProviderTests: XCTestCase {
         catch { XCTAssertEqual(error as? FetchError, .rateLimited) }
     }
 
+    // A non-HTTP URLResponse must degrade to a typed error, not crash the whole menu
+    // bar app via a force-cast — this is a background poller running every 60s forever.
+    func testClaudeProviderNonHTTPResponseThrowsInsteadOfCrashing() async {
+        MockURLProtocol.rawHandler = { req in
+            (URLResponse(url: req.url!, mimeType: nil, expectedContentLength: 0, textEncodingName: nil), Data())
+        }
+        defer { MockURLProtocol.rawHandler = nil }
+        do { _ = try await ClaudeProvider(session: .mocked).fetchUsage(accessToken: "tok"); XCTFail() }
+        catch { XCTAssertEqual(error as? FetchError, .badResponse("non-HTTP response")) }
+    }
+
+    func testClaudeProviderRefreshNonHTTPResponseThrowsInsteadOfCrashing() async {
+        MockURLProtocol.rawHandler = { req in
+            (URLResponse(url: req.url!, mimeType: nil, expectedContentLength: 0, textEncodingName: nil), Data())
+        }
+        defer { MockURLProtocol.rawHandler = nil }
+        let tokens = OAuthTokens(accessToken: "a", refreshToken: "r", expiresAt: Date())
+        do { _ = try await ClaudeProvider(session: .mocked).refresh(tokens); XCTFail() }
+        catch { XCTAssertEqual(error as? FetchError, .unauthorized) }
+    }
+
     func testClaudeProviderFetchProfileSuccess() async throws {
         MockURLProtocol.handler = { req in
             XCTAssertTrue(req.url!.absoluteString.hasSuffix("/api/oauth/profile"))
@@ -63,6 +84,15 @@ final class ProviderTests: XCTestCase {
         MockURLProtocol.handler = { _ in (401, Data()) }
         do { _ = try await ClaudeProvider(session: .mocked).fetchProfile(accessToken: "tok"); XCTFail() }
         catch { XCTAssertEqual(error as? FetchError, .unauthorized) }
+    }
+
+    func testClaudeProviderFetchProfileNonHTTPResponseThrowsInsteadOfCrashing() async {
+        MockURLProtocol.rawHandler = { req in
+            (URLResponse(url: req.url!, mimeType: nil, expectedContentLength: 0, textEncodingName: nil), Data())
+        }
+        defer { MockURLProtocol.rawHandler = nil }
+        do { _ = try await ClaudeProvider(session: .mocked).fetchProfile(accessToken: "tok"); XCTFail() }
+        catch { XCTAssertEqual(error as? FetchError, .badResponse("non-HTTP response")) }
     }
 
     func testPlanLabelMapping() throws {
@@ -124,6 +154,25 @@ final class ProviderTests: XCTestCase {
     func testCodexProvider401() async {
         MockURLProtocol.handler = { _ in (401, Data()) }
         do { _ = try await CodexProvider(session: .mocked).fetchUsage(accessToken: "at"); XCTFail() }
+        catch { XCTAssertEqual(error as? FetchError, .unauthorized) }
+    }
+
+    func testCodexProviderNonHTTPResponseThrowsInsteadOfCrashing() async {
+        MockURLProtocol.rawHandler = { req in
+            (URLResponse(url: req.url!, mimeType: nil, expectedContentLength: 0, textEncodingName: nil), Data())
+        }
+        defer { MockURLProtocol.rawHandler = nil }
+        do { _ = try await CodexProvider(session: .mocked).fetchUsage(accessToken: "at"); XCTFail() }
+        catch { XCTAssertEqual(error as? FetchError, .badResponse("non-HTTP response")) }
+    }
+
+    func testCodexProviderRefreshNonHTTPResponseThrowsInsteadOfCrashing() async {
+        MockURLProtocol.rawHandler = { req in
+            (URLResponse(url: req.url!, mimeType: nil, expectedContentLength: 0, textEncodingName: nil), Data())
+        }
+        defer { MockURLProtocol.rawHandler = nil }
+        let auth = CodexAuth(accessToken: "a", refreshToken: "r", idToken: nil)
+        do { _ = try await CodexProvider(session: .mocked).refresh(auth); XCTFail() }
         catch { XCTAssertEqual(error as? FetchError, .unauthorized) }
     }
 }
