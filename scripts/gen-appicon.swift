@@ -1,8 +1,9 @@
 // Генератор иконки приложения: белый тайл + три вертикальных гейдж-бара
 // (трек + заполнение снизу) — эхо менюбар-глифа IconRenderer (концепт A,
-// выбор владельца 13.07: «А, но на белом фоне»). Пилюли графитовые,
-// третья — янтарная «квота на исходе»: суть продукта в одном взгляде.
-// Запуск: swift scripts/gen-appicon.swift → icon/AppIcon-1024.png
+// выбор владельца 13.07: «А, но на белом фоне»). Высоты = семантика
+// приложения «заполнение = израсходовано» (фидбэк владельца 14.07):
+// графит — спокойный ~45%, янтарь — warn ~78% (≥70), красный — danger
+// ~94% (≥90). Запуск: swift scripts/gen-appicon.swift → icon/AppIcon-1024.png
 import AppKit
 import CoreGraphics
 
@@ -24,9 +25,9 @@ NSGradient(starting: top, ending: bottom)!.draw(in: NSRect(x: 0, y: 0, width: si
 struct Bar { let fill: CGFloat; let color: NSColor }
 let graphite = NSColor(srgbRed: 0.145, green: 0.145, blue: 0.165, alpha: 1)
 let bars: [Bar] = [
-    Bar(fill: 0.78, color: graphite),                                                    // спокойный
-    Bar(fill: 0.52, color: graphite),                                                    // рабочий
-    Bar(fill: 0.24, color: NSColor(srgbRed: 1.00, green: 0.69, blue: 0.25, alpha: 1)),   // на исходе
+    Bar(fill: 0.45, color: graphite),                                                    // спокойный
+    Bar(fill: 0.78, color: NSColor(srgbRed: 1.00, green: 0.69, blue: 0.25, alpha: 1)),   // warn ≥70
+    Bar(fill: 0.94, color: NSColor(srgbRed: 0.88, green: 0.36, blue: 0.31, alpha: 1)),   // danger ≥90
 ]
 let barW: CGFloat = size * 0.132
 let gap: CGFloat = size * 0.096

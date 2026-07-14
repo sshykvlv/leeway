@@ -25,9 +25,9 @@ NSGradient(starting: top, ending: bottom)!.draw(in: NSRect(x: 0, y: 0, width: W,
 struct Bar { let fill: CGFloat; let color: NSColor }
 let graphite = NSColor(srgbRed: 0.145, green: 0.145, blue: 0.165, alpha: 1)
 let bars: [Bar] = [
-    Bar(fill: 0.78, color: graphite),
-    Bar(fill: 0.52, color: graphite),
-    Bar(fill: 0.24, color: NSColor(srgbRed: 1.00, green: 0.69, blue: 0.25, alpha: 1)),
+    Bar(fill: 0.45, color: graphite),
+    Bar(fill: 0.78, color: NSColor(srgbRed: 1.00, green: 0.69, blue: 0.25, alpha: 1)),
+    Bar(fill: 0.94, color: NSColor(srgbRed: 0.88, green: 0.36, blue: 0.31, alpha: 1)),
 ]
 let barW: CGFloat = 34, gap: CGFloat = 24, trackH: CGFloat = 190
 let glyphW = barW * 3 + gap * 2
