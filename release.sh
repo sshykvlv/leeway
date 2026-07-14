@@ -34,7 +34,10 @@ swift build --build-tests
 TEST_OUT="$(xcrun xctest .build/arm64-apple-macosx/debug/AIStatusBarPackageTests.xctest 2>&1 | grep -E 'Executed [0-9]+ tests, with' | tail -1)"
 echo "   $TEST_OUT"
 case "$TEST_OUT" in
-    *"with 0 failures"*) ;;
+    # Matched without the "with" prefix — a real run always has 2 skipped tests
+    # (owner-only Keychain/render checks gated by env vars), so "with 0 failures"
+    # never matches; "0 failures (0 unexpected)" is stable whether or not tests skip.
+    *"0 failures (0 unexpected)"*) ;;
     *) echo "❌ Tests failed — aborting release." >&2; exit 1 ;;
 esac
 
