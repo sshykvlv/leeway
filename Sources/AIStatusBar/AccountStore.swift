@@ -33,7 +33,7 @@ final class AccountStore: @unchecked Sendable {
     /// иначе Remove для claudeMain/codex не «прилипал» бы: он бы возвращался на каждом запуске.
     private func discoverBuiltins(hasClaudeMain: Bool, hasCodex: Bool) {
         var changed = false
-        if !accounts.contains(where: { $0.kind == .claudeMain }),
+        if !accounts.contains(where: { $0.kind == .claudeMain && $0.claudeConfigDir == nil }),
            hasClaudeMain, !dismissedBuiltins.contains(AccountKind.claudeMain.rawValue) {
             accounts.insert(Account(id: UUID(), name: "Claude", kind: .claudeMain, email: nil), at: 0)
             changed = true
@@ -59,11 +59,13 @@ final class AccountStore: @unchecked Sendable {
     }
     func remove(id: UUID) {
         guard let account = accounts.first(where: { $0.id == id }) else { return }
-        // Dismissal только для автоподхваченных builtin-ов (основной Claude и Codex без своего
-        // codexHome). Добавленный вручную Codex (со своим CODEX_HOME) просто удаляется —
-        // иначе его удаление ошибочно скрыло бы и основной Codex.
+        // Dismissal только для автоподхваченных builtin-ов (основной Claude без своего
+        // claudeConfigDir и Codex без своего codexHome). Добавленный вручную CLI-профиль
+        // (со своим claudeConfigDir/CODEX_HOME) просто удаляется — иначе его удаление
+        // ошибочно скрыло бы и основной builtin того же kind.
+        let isBuiltinClaudeMain = account.kind == .claudeMain && account.claudeConfigDir == nil
         let isBuiltinCodex = account.kind == .codex && account.codexHome == nil
-        if account.kind == .claudeMain || isBuiltinCodex {
+        if isBuiltinClaudeMain || isBuiltinCodex {
             dismissedBuiltins.insert(account.kind.rawValue)
             defaults.set(Array(dismissedBuiltins), forKey: dismissedKey)
         }

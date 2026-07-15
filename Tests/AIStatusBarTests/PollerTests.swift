@@ -96,4 +96,33 @@ final class AccountStoreTests: XCTestCase {
         let store2 = AccountStore(defaults: defaults, hasClaudeMain: { false }, hasCodex: { true })
         XCTAssertTrue(store2.accounts.contains { $0.kind == .codex && $0.codexHome == nil })
     }
+
+    // Removing a manually-added Claude CLI profile (its own claudeConfigDir) must NOT
+    // dismiss the auto-detected builtin claudeMain — only the builtin (configDir == nil) does.
+    func testRemovingAddedClaudeCLIProfileDoesNotDismissBuiltin() throws {
+        let defaults = ephemeralDefaults()
+        let store = AccountStore(defaults: defaults, hasClaudeMain: { false }, hasCodex: { false })
+        let addedID = UUID()
+        store.add(Account(id: addedID, name: "Claude 2", kind: .claudeMain, email: nil,
+                          claudeConfigDir: "/tmp/second-claude-home"))
+        store.remove(id: addedID)
+        XCTAssertFalse(store.dismissedBuiltins.contains(AccountKind.claudeMain.rawValue))
+        // Builtin claudeMain is still discoverable after a restart.
+        let store2 = AccountStore(defaults: defaults, hasClaudeMain: { true }, hasCodex: { false })
+        XCTAssertTrue(store2.accounts.contains { $0.kind == .claudeMain && $0.claudeConfigDir == nil })
+    }
+
+    // A manually-added Claude CLI profile must coexist with the auto-detected default
+    // builtin — a CLAUDE_CONFIG_DIR profile is a *different* Keychain entry, not a
+    // substitute for the default ~/.claude one.
+    func testBuiltinClaudeMainCoexistsWithCLIProfile() {
+        let defaults = ephemeralDefaults()
+        let store = AccountStore(defaults: defaults, hasClaudeMain: { false }, hasCodex: { false })
+        store.add(Account(id: UUID(), name: "Claude 2", kind: .claudeMain, email: nil,
+                          claudeConfigDir: "/tmp/second-claude-home"))
+        // Restart with the default builtin now present too.
+        let store2 = AccountStore(defaults: defaults, hasClaudeMain: { true }, hasCodex: { false })
+        XCTAssertTrue(store2.accounts.contains { $0.kind == .claudeMain && $0.claudeConfigDir == nil })
+        XCTAssertTrue(store2.accounts.contains { $0.claudeConfigDir == "/tmp/second-claude-home" })
+    }
 }
