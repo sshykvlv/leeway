@@ -38,8 +38,10 @@ struct AccountRowView: View {
     private var resolvedName: String { Self.resolvedName(name: name, email: email) }
 
     // «Claude · Claude» у дефолтного имени без email — дубль: суффикс различает
-    // сервисы при одинаковых identity, а тут identity и есть имя сервиса.
-    private var showsSuffix: Bool { resolvedName != serviceSuffix }
+    // сервисы при одинаковых identity, а тут identity и есть имя сервиса. Проверка
+    // по префиксу (не точному равенству), чтобы «Claude 2» тоже не тащило за собой
+    // лишний « · Claude» — префикс уже называет сервис.
+    private var showsSuffix: Bool { !resolvedName.hasPrefix(serviceSuffix) }
 
     /// Детализация одного окна для сабменю аккаунта (выбор владельца 12.07:
     /// детали выпадают вправо сабменю; одна строка на окно, без пересчётов

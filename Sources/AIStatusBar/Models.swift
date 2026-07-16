@@ -35,8 +35,12 @@ struct Account: Codable, Equatable, Identifiable {
 
     /// Names an owner never customized, used as a fallback signal that a row's
     /// email (once fetched) is more informative than its generic default name.
-    /// Shared by the menubar tooltip and the menu rows.
-    static let defaultNames: Set<String> = ["Claude", "Codex", "Claude 2"]
+    /// Shared by the menubar tooltip and the menu rows. "Claude 2" (the default
+    /// name for a second CLI profile) is deliberately excluded: it already
+    /// disambiguates from the main account, while its email usually doesn't
+    /// (same owner logged into two subscriptions) — falling back to email here
+    /// used to make both rows render as identical, indistinguishable text.
+    static let defaultNames: Set<String> = ["Claude", "Codex"]
 }
 
 enum AccountState: Equatable {
