@@ -28,11 +28,22 @@ enum IconRenderer {
         }
     }
 
+    static let barWidth: CGFloat = 3
+    static let barHeight: CGFloat = 15
+
+    /// Высота заливки бара для доли израсходованного (0…1). Пропорциональна used,
+    /// с маленьким полом (1pt) только чтобы почти нулевой ненулевой расход не был
+    /// невидимым — не 20% высоты бара, как было раньше (см. историю в image()).
+    static func fillHeight(used: Double) -> CGFloat {
+        guard used > 0 else { return 0 }
+        return max(1, barHeight * used)
+    }
+
     static func image(levels: [BarLevel]) -> NSImage {
         // Столбик на аккаунт, высота = сколько израсходовано у этой модели (снизу вверх),
         // цвет — зелёный/жёлтый/красный по уровню. Никаких цифр: столбики сами показывают
         // реальный статус каждой модели.
-        let barW: CGFloat = 3, gap: CGFloat = 2, barH: CGFloat = 15, canvasH: CGFloat = 18
+        let barW = barWidth, gap: CGFloat = 2, barH = barHeight, canvasH: CGFloat = 18
         let count = max(levels.count, 1)
         let width = CGFloat(count) * barW + CGFloat(count - 1) * gap + 2
         // Template оставляем только когда данных нет вовсе (пустой значок).
@@ -48,7 +59,7 @@ enum IconRenderer {
                 NSColor.labelColor.withAlphaComponent(0.35).setFill()
                 track.fill()
                 if let used = level.used {
-                    let h = used > 0 ? max(barW, barH * used) : 0   // минимум — «точка», 0% — пусто
+                    let h = fillHeight(used: used)
                     if h > 0 {
                         let fill = NSBezierPath(roundedRect: NSRect(x: x, y: y, width: barW, height: h),
                                                 xRadius: barW / 2, yRadius: barW / 2)

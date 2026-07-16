@@ -65,4 +65,26 @@ final class IconTests: XCTestCase {
         let img = IconRenderer.image(levels: IconRenderer.barLevels(s))
         XCTAssertFalse(img.isTemplate)
     }
+
+    /// Regression coverage for the "bars don't reflect the real percentage" bug:
+    /// the fill height used to floor at barWidth (3pt = 20% of a 15pt bar), so
+    /// any two accounts both under 20% used (e.g. real-world 4% and 19%) rendered
+    /// as the exact same height despite a 5x gap in actual usage.
+    func testFillHeightDistinguishesTwoLowPercentages() {
+        let low = IconRenderer.fillHeight(used: 0.04)
+        let mid = IconRenderer.fillHeight(used: 0.19)
+        let high = IconRenderer.fillHeight(used: 0.28)
+        XCTAssertLessThan(low, mid)
+        XCTAssertLessThan(mid, high)
+    }
+
+    func testFillHeightIsProportionalAboveTheFloor() {
+        // Well above the 1pt floor, height should track usage linearly.
+        XCTAssertEqual(IconRenderer.fillHeight(used: 0.5), IconRenderer.barHeight * 0.5, accuracy: 0.01)
+    }
+
+    func testFillHeightFloorsNearZeroToStayVisible() {
+        XCTAssertEqual(IconRenderer.fillHeight(used: 0.001), 1)
+        XCTAssertEqual(IconRenderer.fillHeight(used: 0), 0)
+    }
 }
