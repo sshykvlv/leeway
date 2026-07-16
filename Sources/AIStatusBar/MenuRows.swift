@@ -32,7 +32,7 @@ struct AccountRowView: View {
     /// Дефолтное имя ничего не говорит — показываем email, когда он есть.
     /// Общая точка для строки меню и шапки сабменю деталей.
     static func resolvedName(name: String, email: String?) -> String {
-        Account.defaultNames.contains(name) ? (email ?? name) : name
+        Account.isGenericPlaceholderName(name) ? (email ?? name) : name
     }
 
     private var resolvedName: String { Self.resolvedName(name: name, email: email) }

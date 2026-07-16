@@ -33,14 +33,30 @@ struct Account: Codable, Equatable, Identifiable {
     /// от этого пути (см. KeychainStore.claudeCodeService). nil = основной ~/.claude.
     var claudeConfigDir: String? = nil
 
-    /// Names an owner never customized, used as a fallback signal that a row's
-    /// email (once fetched) is more informative than its generic default name.
-    /// Shared by the menubar tooltip and the menu rows. "Claude 2" (the default
-    /// name for a second CLI profile) is deliberately excluded: it already
-    /// disambiguates from the main account, while its email usually doesn't
-    /// (same owner logged into two subscriptions) — falling back to email here
-    /// used to make both rows render as identical, indistinguishable text.
-    static let defaultNames: Set<String> = ["Claude", "Codex"]
+    /// True only for the bare, un-numbered placeholder ("Claude"/"Codex") that a
+    /// single account of a kind starts with before it's renamed or has a fetched
+    /// email. Used as a fallback signal that a row's email (once known) is more
+    /// informative than this name — shared by the menubar tooltip and menu rows.
+    /// Numbered variants ("Claude 2", "Claude 3", …) are NOT generic: they already
+    /// disambiguate sibling accounts, while their email often doesn't (same owner,
+    /// multiple subscriptions) — swapping a numbered name for a shared email used
+    /// to make sibling rows render as identical, indistinguishable text. Checked by
+    /// rule instead of an enumerated set so a third/fourth profile's auto-assigned
+    /// name (see AppDelegate.addClaudeProfile) is covered without remembering
+    /// to list it here too.
+    static func isGenericPlaceholderName(_ name: String) -> Bool {
+        name == "Claude" || name == "Codex"
+    }
+
+    /// Next auto-assigned name for a new Claude CLI profile account, numbered by
+    /// how many profile accounts (non-nil claudeConfigDir) already exist. Never a
+    /// fixed literal — a hardcoded "Claude 2" would collide with an existing
+    /// profile's name once a third profile is added, reintroducing the identical-
+    /// row bug this type was already fixed for once.
+    static func nextClaudeProfileName(existingConfigDirs: [String?]) -> String {
+        let profileCount = existingConfigDirs.filter { $0 != nil }.count
+        return "Claude \(profileCount + 2)"
+    }
 }
 
 enum AccountState: Equatable {

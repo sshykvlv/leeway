@@ -240,7 +240,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             case .ok(let usage, _), .stale(let usage, _, _): pct = Int(usage.worstUtilization)
             case .failed, .pending: return nil   // skip accounts with no data
             }
-            let label = (Account.defaultNames.contains(account.name) ? account.email : nil) ?? account.name
+            let label = (Account.isGenericPlaceholderName(account.name) ? account.email : nil) ?? account.name
             return "\(label) \(pct)%"
         }
         return parts.joined(separator: " · ")
@@ -301,8 +301,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // Дедуп по конфиг-папке (nil = основной автоподхваченный ~/.claude).
         let existingDirs = store.accounts.filter { $0.kind == .claudeMain }.map { $0.claudeConfigDir }
         if existingDirs.contains(configDir) { NSSound.beep(); return }
-        store.add(Account(id: UUID(), name: "Claude 2", kind: .claudeMain, email: nil,
-                          claudeConfigDir: configDir))
+        let name = Account.nextClaudeProfileName(existingConfigDirs: existingDirs)
+        store.add(Account(id: UUID(), name: name, kind: .claudeMain, email: nil, claudeConfigDir: configDir))
         render()
     }
     @objc private func toggleLogin() {
