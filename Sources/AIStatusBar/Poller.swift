@@ -30,9 +30,19 @@ final class Poller {
 
     func pollNow() { Task { await pollAll(force: true) } }
 
+    /// Wake fires `didWakeNotification` mid dark-wake, before the lid is fully
+    /// open — coreauthd cancels any in-flight biometric prompt ("Lid is closed")
+    /// right as this poll tries to read the Keychain, so `SecItemCopyMatching`
+    /// comes back denied (securityd: "user did not approve 'allow'") rather than
+    /// "item not found". That reads identically to a real logout and flashes a
+    /// false re-login badge on an account that was fine a second ago. Retrying
+    /// once, only for accounts that just went from .ok to an auth failure, fixes
+    /// the false flash without masking a genuine logout for more than ~2s.
+    func pollAfterWake() { Task { await pollAll(force: true, retryUnauthorizedOnce: true) } }
+
     func state(for id: UUID) -> AccountState { states[id] ?? .pending }
 
-    private func pollAll(force: Bool) async {
+    private func pollAll(force: Bool, retryUnauthorizedOnce: Bool = false) async {
         // Демо-режим: фиксированные состояния вместо сети (см. MockData).
         if MockData.enabled {
             for account in store.accounts { states[account.id] = MockData.state(for: account.id) }
@@ -41,13 +51,15 @@ final class Poller {
         }
         await withTaskGroup(of: Void.self) { group in
             for account in store.accounts {
-                group.addTask { @MainActor in await self.poll(account, force: force) }
+                group.addTask { @MainActor in
+                    await self.poll(account, force: force, retryUnauthorizedOnce: retryUnauthorizedOnce)
+                }
             }
         }
         onUpdate?(states)
     }
 
-    private func poll(_ account: Account, force: Bool) async {
+    private func poll(_ account: Account, force: Bool, retryUnauthorizedOnce: Bool = false) async {
         let now = Date()
         if let gate = nextAllowed[account.id], now < gate, !force { return }
         if force, let last = lastFetch(account.id), now.timeIntervalSince(last) < 10 { return }
@@ -68,6 +80,11 @@ final class Poller {
             nextAllowed[account.id] = Date().addingTimeInterval(Self.backoffSchedule[lvl])
             demote(account.id, badge: "rate-limited")
         } catch FetchError.unauthorized {
+            if retryUnauthorizedOnce, case .ok = states[account.id] ?? .pending {
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                await poll(account, force: true, retryUnauthorizedOnce: false)
+                return
+            }
             demote(account.id, badge: badgeForAuthFailure(account))
         } catch {
             demote(account.id, badge: "offline")
