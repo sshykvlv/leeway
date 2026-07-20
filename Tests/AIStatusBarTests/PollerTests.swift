@@ -12,6 +12,42 @@ final class PollerTests: XCTestCase {
                       sevenDay: .init(utilization: 80, resetsAt: nil))
         XCTAssertEqual(u.worstUtilization, 80)
     }
+
+    // menuWillOpen calls pollNow() (force: true) on every single menu open, and the
+    // 60s timer does the same on every tick. For a Keychain-backed account (claudeMain/
+    // claudeOAuth) an .unauthorized failure means SecItemCopyMatching came back denied —
+    // retrying that on every forced poll re-surfaces the interactive macOS "wants to
+    // access key ... in your keychain" dialog again and again, which is exactly what
+    // "оно опять логинится" reports. A claudeMain account pointed at a bogus
+    // claudeConfigDir reproduces .unauthorized deterministically with no real Keychain
+    // prompt or network call: KeychainStore.claudeCodeService hashes the given path into
+    // a service name that matches no real Keychain item (unlike CodexAuth.load, which
+    // falls back to the real default ~/.codex when the given home has no auth.json —
+    // that fallback made a .codex-based version of this test silently hit this
+    // machine's real, logged-in Codex account instead of failing).
+    @MainActor
+    func testUnauthorizedAccountBacksOffAcrossForcedPolls() async {
+        let store = AccountStore(defaults: UserDefaults(suiteName: "aistatusbar.test.\(UUID().uuidString)")!,
+                                 hasClaudeMain: { false }, hasCodex: { false })
+        let id = UUID()
+        store.add(Account(id: id, name: "Test Claude", kind: .claudeMain, email: nil,
+                          claudeConfigDir: "/tmp/aistatusbar-test-nonexistent-\(UUID().uuidString)"))
+
+        let poller = Poller(store: store)
+        await poller.pollAll(force: true)
+        guard case .failed = poller.state(for: id) else {
+            return XCTFail("expected .failed after the first unauthorized poll")
+        }
+        let gateAfterFirst = try? XCTUnwrap(poller.authNextAllowed[id])
+        XCTAssertNotNil(gateAfterFirst, "an unauthorized failure must set a backoff gate")
+
+        // Simulates exactly what menuWillOpen does on every open: another forced poll,
+        // immediately. Within the backoff window this must NOT re-attempt the fetch —
+        // otherwise every menu-open would flash the Keychain dialog again.
+        await poller.pollAll(force: true)
+        XCTAssertEqual(poller.authNextAllowed[id], gateAfterFirst,
+                       "a forced poll inside the backoff window re-attempted the fetch instead of being gated")
+    }
 }
 
 final class AccountStoreTests: XCTestCase {

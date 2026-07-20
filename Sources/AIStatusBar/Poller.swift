@@ -9,6 +9,13 @@ final class Poller {
     private var states: [UUID: AccountState] = [:]
     private var backoffLevel: [UUID: Int] = [:]
     private var nextAllowed: [UUID: Date] = [:]
+    private var authFailureLevel: [UUID: Int] = [:]
+    /// Gate for `.unauthorized` retries — unlike `nextAllowed`, `force` polls (menu-open,
+    /// wake) do NOT bypass this one. A Keychain read denial surfaces an interactive OS
+    /// authorization dialog, not a silent failure; retrying it every 60s timer tick and on
+    /// every menu-open flashed that dialog repeatedly (readable-for-tests to prove a forced
+    /// poll during backoff didn't re-attempt).
+    private(set) var authNextAllowed: [UUID: Date] = [:]
     private var timer: Timer?
     var onUpdate: (([UUID: AccountState]) -> Void)?
     let alertEngine = AlertEngine()
@@ -42,7 +49,7 @@ final class Poller {
 
     func state(for id: UUID) -> AccountState { states[id] ?? .pending }
 
-    private func pollAll(force: Bool, retryUnauthorizedOnce: Bool = false) async {
+    func pollAll(force: Bool, retryUnauthorizedOnce: Bool = false) async {
         // Демо-режим: фиксированные состояния вместо сети (см. MockData).
         if MockData.enabled {
             for account in store.accounts { states[account.id] = MockData.state(for: account.id) }
@@ -62,11 +69,14 @@ final class Poller {
     private func poll(_ account: Account, force: Bool, retryUnauthorizedOnce: Bool = false) async {
         let now = Date()
         if let gate = nextAllowed[account.id], now < gate, !force { return }
+        if let authGate = authNextAllowed[account.id], now < authGate { return }
         if force, let last = lastFetch(account.id), now.timeIntervalSince(last) < 10 { return }
         nextAllowed[account.id] = now.addingTimeInterval(Self.interval - 1)
         do {
             let fetched = try await fetchUsage(for: account)
             backoffLevel[account.id] = nil
+            authFailureLevel[account.id] = nil
+            authNextAllowed[account.id] = nil
             let usage = withBurnRateForecast(account: account, usage: fetched)
             states[account.id] = .ok(usage, fetchedAt: Date())
             // Движок всегда обрабатывает опрос (чтобы состояние прогревалось даже пока
@@ -85,6 +95,9 @@ final class Poller {
                 await poll(account, force: true, retryUnauthorizedOnce: false)
                 return
             }
+            let lvl = min((authFailureLevel[account.id] ?? -1) + 1, Self.backoffSchedule.count - 1)
+            authFailureLevel[account.id] = lvl
+            authNextAllowed[account.id] = Date().addingTimeInterval(Self.backoffSchedule[lvl])
             demote(account.id, badge: badgeForAuthFailure(account))
         } catch {
             demote(account.id, badge: "offline")
