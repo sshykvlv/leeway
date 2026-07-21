@@ -39,10 +39,18 @@ enum IconRenderer {
         return max(1, barHeight * used)
     }
 
-    static func image(levels: [BarLevel]) -> NSImage {
+    static func image(levels rawLevels: [BarLevel]) -> NSImage {
         // Столбик на аккаунт, высота = сколько израсходовано у этой модели (снизу вверх),
         // цвет — зелёный/жёлтый/красный по уровню. Никаких цифр: столбики сами показывают
         // реальный статус каждой модели.
+        // levels.isEmpty (нет ни одного настроенного аккаунта, не просто "данные ещё не
+        // пришли") раньше рендерило буквально пустой канвас — ни одного трека не рисовалось,
+        // потому что цикл ниже идёт по levels. Значок в менюбаре становился невидимым (owner
+        // repro: удалил все аккаунты во время миграции на .claudeOAuth → иконка пропала,
+        // нечем было кликнуть "Add Claude Account…"). Подставляем один пустой трек-плейсхолдер,
+        // как для .pending — та же визуальная лексика "данных нет", но остаётся видимым и
+        // кликабельным.
+        let levels = rawLevels.isEmpty ? [BarLevel(used: nil, severity: .normal)] : rawLevels
         let barW = barWidth, gap: CGFloat = 2, barH = barHeight, canvasH: CGFloat = 18
         let count = max(levels.count, 1)
         let width = CGFloat(count) * barW + CGFloat(count - 1) * gap + 2

@@ -1,4 +1,5 @@
 import XCTest
+import AppKit
 @testable import AIStatusBar
 
 final class IconTests: XCTestCase {
@@ -86,5 +87,34 @@ final class IconTests: XCTestCase {
     func testFillHeightFloorsNearZeroToStayVisible() {
         XCTAssertEqual(IconRenderer.fillHeight(used: 0.001), 1)
         XCTAssertEqual(IconRenderer.fillHeight(used: 0), 0)
+    }
+
+    /// Regression coverage for the "icon disappears" bug: with zero configured
+    /// accounts, `image(levels:)` used to draw nothing at all (the fill loop
+    /// iterates `levels`, which was empty) — a fully blank, invisible menu bar
+    /// icon with nothing left to click to add an account back. It must still
+    /// draw at least an empty placeholder track.
+    func testImageDrawsPlaceholderTrackWhenNoAccountsConfigured() {
+        let img = IconRenderer.image(levels: [])
+        XCTAssertTrue(img.size.width > 0 && img.size.height > 0)
+        XCTAssertTrue(img.isTemplate, "no data at all should still render as a template icon")
+        XCTAssertTrue(hasAnyNonTransparentPixel(img), "expected a visible placeholder track, got a blank canvas")
+    }
+
+    private func hasAnyNonTransparentPixel(_ image: NSImage) -> Bool {
+        let rep = NSBitmapImageRep(bitmapDataPlanes: nil,
+                                   pixelsWide: Int(image.size.width), pixelsHigh: Int(image.size.height),
+                                   bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                                   colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+        image.draw(in: NSRect(origin: .zero, size: image.size))
+        NSGraphicsContext.restoreGraphicsState()
+        for y in 0..<rep.pixelsHigh {
+            for x in 0..<rep.pixelsWide {
+                if let color = rep.colorAt(x: x, y: y), color.alphaComponent > 0.01 { return true }
+            }
+        }
+        return false
     }
 }
